@@ -1,90 +1,157 @@
 
 #include <stdio.h>
-#include <fcntl.h>
-#include <unistd.h>
+#include <bitset>
+#include <math.h>
+#include <iostream>
+#include <stdio.h>
 #include <stdlib.h>
-#include <sys/ioctl.h>
-#include <linux/joystick.h>
 #include "socketmessage.h"
+#include "joystickclass.h"
+//20000000
 
+#define PI	3.1416
+#define MAX 2350000
+#define MIN 570000
 
-#define JOY_DEV "/dev/input/js0"
 using namespace socket_msg;
+using namespace std;
+using namespace joystick;
+
+
+double signof(double a) { return (a == 0) ? 0 : (a<0 ? -1 : 1); }
 
 int main()
 {
-
-	 socket_message BBBsock(23222,"192.168.0.137",2);
+	 socket_message BBBsock(231112,"192.168.0.8",2);
 	 BBBsock.init_udp_sender_socket();
 
+	 socket_message BBBrecv(231112,"192.168.0.8",2);
+	 BBBrecv.init_udp_receiver_socket();
 
-	int joy_fd, *axis=NULL, num_of_axis=0, num_of_buttons=0, x;
-	char *button=NULL, name_of_joystick[80];
-	struct js_event js;
-	float mi,md,V,H;
+	 joystick_class xbox;
 
-	if( ( joy_fd = open( JOY_DEV , O_RDONLY)) == -1 )
-	{
-		printf( "Couldn't open joystick\n" );
-		return -1;
-	}
 
-	ioctl( joy_fd, JSIOCGAXES, &num_of_axis );
-	ioctl( joy_fd, JSIOCGBUTTONS, &num_of_buttons );
-	ioctl( joy_fd, JSIOCGNAME(80), &name_of_joystick );
-
-	axis = (int *) calloc( num_of_axis, sizeof( int ) );
-	button = (char *) calloc( num_of_buttons, sizeof( char ) );
-
-	printf("Joystick detected: %s\n\t%d axis\n\t%d buttons\n\n"
-		, name_of_joystick
-		, num_of_axis
-		, num_of_buttons );
+	int algorithm =1, dzone=6000 ;
+	unsigned char buttons=0;
+	float R,L,theta,rho,state=1460000;
 
 
 
-	fcntl( joy_fd, F_SETFL, O_NONBLOCK );	/* use non-blocking mode */
+
+
 
 	while( 1 ) 	/* infinite loop */
 	{
-
 			/* read the joystick state */
-		read(joy_fd, &js, sizeof(struct js_event));
 
-			/* see what to do with the event */
-		switch (js.type & ~JS_EVENT_INIT)
+		xbox.readjs();
+
+			buttons = (xbox.button[7]<<7)|(xbox.button[6]<<6)|(xbox.button[5]<<5)|(xbox.button[4]<<4)|(xbox.button[3]<<3)|(xbox.button[2]<<2)|(xbox.button[1]<<1)|(xbox.button[0]);
+			cout << bitset<8>(buttons) ;
+
+			if(abs(xbox.axis[0])<dzone && abs(xbox.axis[1])<dzone)
+				{
+				xbox.axis[1]=0;
+				xbox.axis[0]=0;
+				}
+
+		switch(algorithm)
 		{
-			case JS_EVENT_AXIS:
-	 			axis   [ js.number ] = js.value;
-				break;
-			case JS_EVENT_BUTTON:
-				button [ js.number ] = js.value;
-				break;
+			case 1:
+				L = -(int)(signof(xbox.axis[1])*pow(xbox.axis[1],2)+signof(xbox.axis[0])*pow(xbox.axis[0],2));
+				R = -(int)(signof(xbox.axis[1])*pow(xbox.axis[1],2)-signof(xbox.axis[0])*pow(xbox.axis[0],2));
+
+				R=round(R)/8000000+127;
+				L=round(L)/8000000+127;
+				cout << "\t FB = " << xbox.axis[1]<< "\t RL = " << xbox.axis[0]<< "\t L = " << L << "\t R = " << R  ;
+			break;
+
+			case 2:
+				rho=sqrt(pow(xbox.axis[0],2)+pow(xbox.axis[1],2));
+				theta = atan2(xbox.axis[0],-xbox.axis[1]);
+
+
+				if(theta >= 0 && theta <= PI/2)
+				{
+					R=rho;
+					L=rho*(-theta+PI/4)/(PI/4);
+				}
+				else if(theta > PI/2 && theta <= PI)
+				{
+					R=rho*(-theta+3*PI/4)/(PI/4);
+					L=-rho;
+
+				}
+				else if(theta <= 0 && theta >= -PI/2)
+				{
+
+					R=rho*(theta+PI/4)/(PI/4);
+					L=rho;
+
+				}
+				else if(theta < -PI/2 && theta >= -PI)
+				{
+					R=-rho;
+					L=rho*(theta+3*PI/4)/(PI/4);
+				}
+
+				R=round(R/260)+127;
+				L=round(L/260)+127;
+
+				cout << "\t theta = " << theta << "\t rho = " << rho << "\t R = " << R << "\t L = " << L  ;
+			break;
 		}
 
 
 
-			V=-1*axis[3]/32767.0 ;
-			H=axis[2]/32767.0;
+		if(R>255) R=255;
+		if(R<0) R=0;
 
-			if(H<0)
-			mi=V+2*V*H;
-			else
-			mi=V-2*V*H;
-			md=V;
+		if(L>255)L=255;
+		if(L<0) L=0;
+
+			cout <<"\t" <<(xbox.axis[5]/2+32767/2)/100 <<"\t" <<(xbox.axis[2]/2+32767/2)/100 <<endl;
+
+			if(xbox.button[0])
+			{
+
+				if(xbox.axis[5]/240 > -125)
+				{
+					xbox.axis[5] = xbox.axis[5]/2+32767/2;
+					state=state+xbox.axis[5]/3000.0;
+					if(state>MAX)
+						state=MAX;
+				}
+				else if(xbox.axis[2]/240 > -125)
+				{
+					xbox.axis[2] = xbox.axis[2]/2+32767/2;
+					state=state-xbox.axis[2]/3000.0;
+					if(state<MIN)
+						state=MIN;
+				}
+			}
+
+			cout << state/10000 << "\t";
+
+			/*PWMsock.buffer[0]=(char)servo;
+			PWMsock.buffer[1]=(char)set;
+			PWMsock.buffer[2]=(char)reset;
+			*/
+
+			BBBsock.buffer[0]= 'a';
+			BBBsock.buffer[1]='e';
+			BBBsock.write_udp();
+			cout<<"write"<<BBBsock.server<<endl;
+
+			BBBrecv.read_udp();
+			cout<<endl<<endl;
+			cout<<"waiting\t"<<(char)BBBrecv.buffer[0]<<(char)BBBrecv.buffer[1]<<endl;
 
 
-			 BBBsock.buffer[0]=(mi+1)*127;
-			 BBBsock.buffer[1]=(md+1)*127;
-			 BBBsock.write_udp();
-
-			printf("mi: %6f  ",mi);
-
-			printf("md: %6f  ",md);
-
+		//if(xbox.button[2])cout<<system("shutdown -h now");
 		fflush(stdout);
 	}
 
-	close( joy_fd );	/* too bad we never get here */
+	xbox.closejs();
 	return 0;
 }
