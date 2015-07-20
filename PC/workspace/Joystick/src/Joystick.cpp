@@ -1,3 +1,11 @@
+/* 		Joystick
+ *
+ *
+ *
+ *
+ *
+ * */
+
 
 #include <stdio.h>
 #include <bitset>
@@ -10,22 +18,21 @@
 //20000000
 
 #define PI	3.1416
-#define MAX 2350000
-#define MIN 570000
+#define MAX 2350000	// Máximo valor de giro de servomotor en nanosegundos
+#define MIN 570000	// Mínimo valor de giro de servomotor en nanosegundos
 
-using namespace socket_msg;
 using namespace std;
 using namespace joystick;
+using namespace socket_msg;
 
-
-double signof(double a) { return (a == 0) ? 0 : (a<0 ? -1 : 1); }
+double signof(double a) { return (a == 0) ? 0 : (a<0 ? -1 : 1); }  //función que regresa el signo del valor a
 
 int main()
 {
-	 socket_message BBBsock(231112,"192.168.0.8",2);
+	 socket_message BBBsock(231112,"127.0.0.1",2);
 	 BBBsock.init_udp_sender_socket();
 
-	 socket_message BBBrecv(231112,"192.168.0.8",2);
+	 socket_message BBBrecv(231112,"127.0.0.1",2);
 	 BBBrecv.init_udp_receiver_socket();
 
 	 joystick_class xbox;
@@ -40,30 +47,33 @@ int main()
 
 
 
-	while( 1 ) 	/* infinite loop */
+	while( 1 ) 	// Ciclo principal
 	{
-			/* read the joystick state */
+			xbox.readjs(); // Lee los valores del joystick
 
-		xbox.readjs();
-
-			buttons = (xbox.button[7]<<7)|(xbox.button[6]<<6)|(xbox.button[5]<<5)|(xbox.button[4]<<4)|(xbox.button[3]<<3)|(xbox.button[2]<<2)|(xbox.button[1]<<1)|(xbox.button[0]);
-			cout << bitset<8>(buttons) ;
+			buttons = 	(xbox.button[7]<<7)|(xbox.button[6]<<6)|
+						(xbox.button[5]<<5)|(xbox.button[4]<<4)|
+						(xbox.button[3]<<3)|(xbox.button[2]<<2)|
+						(xbox.button[1]<<1)|(xbox.button[0]);
+						cout << bitset<8>(buttons) ; // Crea byte con dato de botones del joystick
 
 			if(abs(xbox.axis[0])<dzone && abs(xbox.axis[1])<dzone)
 				{
 				xbox.axis[1]=0;
 				xbox.axis[0]=0;
-				}
+				} 	// crea una zona en la que los valores leidos serán cero
 
 		switch(algorithm)
 		{
 			case 1:
+				// algoritmo lineal
 				L = -(int)(signof(xbox.axis[1])*pow(xbox.axis[1],2)+signof(xbox.axis[0])*pow(xbox.axis[0],2));
 				R = -(int)(signof(xbox.axis[1])*pow(xbox.axis[1],2)-signof(xbox.axis[0])*pow(xbox.axis[0],2));
 
 				R=round(R)/8000000+127;
 				L=round(L)/8000000+127;
-				cout << "\t FB = " << xbox.axis[1]<< "\t RL = " << xbox.axis[0]<< "\t L = " << L << "\t R = " << R  ;
+
+				//cout << "\t FB = " << xbox.axis[1]<< "\t RL = " << xbox.axis[0]<< "\t L = " << L << "\t R = " << R  ;
 			break;
 
 			case 2:
@@ -146,6 +156,12 @@ int main()
 			BBBrecv.read_udp();
 			cout<<endl<<endl;
 			cout<<"waiting\t"<<(char)BBBrecv.buffer[0]<<(char)BBBrecv.buffer[1]<<endl;
+
+			BBBsock.buffer[0]= 'f';
+			BBBsock.buffer[1]='d';
+			BBBrecv.write_udp();
+			BBBsock.read_udp();
+			cout<<"waiting\t"<<(char)BBBsock.buffer[0]<<(char)BBBsock.buffer[1]<<endl;
 
 
 		//if(xbox.button[2])cout<<system("shutdown -h now");
