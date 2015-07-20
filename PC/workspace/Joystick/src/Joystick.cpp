@@ -1,10 +1,42 @@
-/* 		Joystick
- *
- *
- *
- *
- *
- * */
+// ----------------------------------------------------------------------------
+/**
+   File: Joystick.cpp
+
+   System:	Robot de enjambre para exploración en en estructuras colapsadas
+   Component Name: Control
+   Status:         Version 0.1
+   Language: C++
+
+   License: GNU Public License
+
+   Address:
+      AV. UNIVERSIDAD Nº 3000,
+      UNIVERSIDAD NACIONAL AUTÓNOMA DE MÉXICO, C.U.,
+      DISTRITO FEDERAL, 04510
+
+   Author: Kevin Omar Arias García
+   E-Mail: kevinoag@gmail.com
+
+   Description: This code beside joystickclass.cpp joystickclass.h socketmessage.cpp socketmessage.h
+   are intended to send control instructions to the robot.
+
+   Limitations: You must have an xbox-USB controller.
+
+   Platform Dependencies: Linux/Intel
+
+   Note:
+   	   Algorithm 1 and 2 are based on the paper
+   	   Manual Control for Driving an Intelligent Wheelchair: A Comparative Study of Joystick Mapping Methods*
+   	   by Brígida Mónica Faria, Luís Miguel Ferreira, Luís Paulo Reis, Nuno Lau, Marcelo Petry, and João Couto Soares
+
+   Compiler Options:
+
+   Revisions:
+   Date         Author       	Description
+   2014.07.20   KevinArias	 	Added dynamic video transfer adjustable to user defined resolution
+**/
+// ----------------------------------------------------------------------------
+
 
 
 #include <stdio.h>
@@ -156,12 +188,6 @@ int main()
 			BBBrecv.read_udp();
 			cout<<endl<<endl;
 			cout<<"waiting\t"<<(char)BBBrecv.buffer[0]<<(char)BBBrecv.buffer[1]<<endl;
-
-			BBBsock.buffer[0]= 'f';
-			BBBsock.buffer[1]='d';
-			BBBrecv.write_udp();
-			BBBsock.read_udp();
-			cout<<"waiting\t"<<(char)BBBsock.buffer[0]<<(char)BBBsock.buffer[1]<<endl;
 
 
 		//if(xbox.button[2])cout<<system("shutdown -h now");
