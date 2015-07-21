@@ -20,10 +20,9 @@
 namespace socket_msg {
 
 socket_message::socket_message(int portno,const char * host,int bufsize) {
-
-	this->portno=portno;	//Port Number
-	this->host=host;		//Server IP
-	this->server = gethostbyname(this->host);	// Get name and number of server
+	this->portno=portno;	//N��mero de puerto
+	this->host=host;		//IP del servidor
+	this->server = gethostbyname(this->host);	// Obtiene nombre y direcci��n del servidor
     this->buffer = new char[bufsize];
     this->bsize=bufsize;
 }
@@ -34,12 +33,12 @@ socket_message::~socket_message() {
 
 void socket_message::init_tcp_server_socket()
 {
-    socklen_t clilen; 								//Client Size
-    struct sockaddr_in serv_addr, cli_addr; 		//Simplified IP address
+    socklen_t clilen; 								//Tama��o del cliente
+    struct sockaddr_in serv_addr, cli_addr; 		//Estructura de direcci��n simplificada
 
     this->sockfd = socket(AF_INET, SOCK_STREAM, 0);	//Crea socket TCP/IP del tipo Stream, protocolo adecuado "0"
 
-    if (this->sockfd < 0)								//Verificación de creación de socket
+    if (this->sockfd < 0)								//Verificaci��n de creaci��n de socket
        error("ERROR opening socket");
 
     bzero((char *) &(serv_addr), sizeof(serv_addr));	//Limpia estructura de direcci��n del servidor
@@ -90,23 +89,20 @@ void socket_message::init_tcp_client_socket()
 void socket_message::init_udp_receiver_socket()
 {
 
+	    struct sockaddr_in serv_addr, cli_addr; 		//Estructura de direcci��n simplificada
+		socklen_t clilen=sizeof(cli_addr); 								//Tama��o del cliente
+	    //this->sockfd = socket(AF_INET, SOCK_STREAM, 0);	//Crea socket TCP/IP del tipo Stream, protocolo adecuado "0"
+	    this->sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 
-    struct sockaddr_in serv_addr, cli_addr; 		//Estructura de direcci��n simplificada
-	socklen_t clilen=sizeof(cli_addr); 								//Tama��o del cliente
-    //this->sockfd = socket(AF_INET, SOCK_STREAM, 0);	//Crea socket TCP/IP del tipo Stream, protocolo adecuado "0"
-    this->sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+	    if (this->sockfd < 0)							//Verificaci��n de creaci��n de socket
+	       error("ERROR opening socket");
 
-    if (this->sockfd < 0)							//Verificaci��n de creaci��n de socket
-       error("ERROR opening socket");
+	    bzero((char *) &(serv_addr), sizeof(serv_addr));	//Limpia estructura de direcci��n del servidor
 
-    bzero((char *) &(serv_addr), sizeof(serv_addr));	//Limpia estructura de direcci��n del servidor
-	this->server = gethostbyname(this->host);
-    serv_addr.sin_family = AF_INET;						//Comunicaci��n mediante TCP/IP
-    //serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);				//Direcci��n IP de la m��quina
-    memcpy((void *)&this->serv_addr.sin_addr, this->server->h_addr_list[0], this->server->h_length);
-
-    serv_addr.sin_port = htons(this->portno);			//Puerto de conexi��n - host to network short
-    //serv_addr.sin_zero N��meros complemento
+	    serv_addr.sin_family = AF_INET;						//Comunicaci��n mediante TCP/IP
+	    serv_addr.sin_addr.s_addr = inet_addr("192.168.1.130");				//Direcci��n IP de la m��quina
+	    serv_addr.sin_port = htons(this->portno);			//Puerto de conexi��n - host to network short
+	    //serv_addr.sin_zero N��meros complemento
 
 	    if (bind(this->sockfd, (struct sockaddr *) &(serv_addr),sizeof(serv_addr)) < 0)	 //asigna direcci��n y puerto al identificador de socket
 	    	error("ERROR on binding");	//regresa -1 si no es posible

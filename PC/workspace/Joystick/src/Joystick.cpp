@@ -42,16 +42,17 @@
 #include <stdio.h>
 #include <bitset>
 #include <math.h>
+#include <unistd.h>
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include "socketmessage.h"
 #include "joystickclass.h"
-//20000000
+//c
 
 #define PI	3.1416
 #define MAX 2350000	// Máximo valor de giro de servomotor en nanosegundos
-#define MIN 570000	// Mínimo valor de giro de servomotor en nanosegundos
+#define MIN 570000	// Mínimo v130alor de giro de servomotor en nanosegundos
 
 using namespace std;
 using namespace joystick;
@@ -61,20 +62,23 @@ double signof(double a) { return (a == 0) ? 0 : (a<0 ? -1 : 1); }  //función qu
 
 int main()
 {
-	 socket_message BBBsock(231112,"127.0.0.1",2);
+	//Inicialización de socket transmisor UDP
+	 socket_message BBBsock(2211122,"192.168.1.149",4);
 	 BBBsock.init_udp_sender_socket();
 
-	 socket_message BBBrecv(231112,"127.0.0.1",2);
-	 BBBrecv.init_udp_receiver_socket();
 
+
+
+	 //Creation of an xbox joystic object
 	 joystick_class xbox;
 
 
-	int algorithm =1, dzone=6000 ;
-	unsigned char buttons=0;
-	float R,L,theta,rho,state=1460000;
+	int algorithm =1, dzone=6000 ; //Algorithm selection (1 o 2), valor máximo de zona muerta
+	unsigned char buttons=0;	// Variable para transmitir botones
+	float R,L,theta,rho; // variables para los algoritmos
+	float state=1460000; // estado inicial para PWM del servo
 
-
+int count=0;
 
 
 
@@ -87,7 +91,7 @@ int main()
 						(xbox.button[5]<<5)|(xbox.button[4]<<4)|
 						(xbox.button[3]<<3)|(xbox.button[2]<<2)|
 						(xbox.button[1]<<1)|(xbox.button[0]);
-						cout << bitset<8>(buttons) ; // Crea byte con dato de botones del joystick
+						//cout << bitset<8>(buttons) ; // Crea byte con dato de botones del joystick
 
 			if(abs(xbox.axis[0])<dzone && abs(xbox.axis[1])<dzone)
 				{
@@ -140,7 +144,7 @@ int main()
 				R=round(R/260)+127;
 				L=round(L/260)+127;
 
-				cout << "\t theta = " << theta << "\t rho = " << rho << "\t R = " << R << "\t L = " << L  ;
+				//cout << "\t theta = " << theta << "\t rho = " << rho << "\t R = " << R << "\t L = " << L  ;
 			break;
 		}
 
@@ -152,7 +156,7 @@ int main()
 		if(L>255)L=255;
 		if(L<0) L=0;
 
-			cout <<"\t" <<(xbox.axis[5]/2+32767/2)/100 <<"\t" <<(xbox.axis[2]/2+32767/2)/100 <<endl;
+			//cout <<"\t" <<(xbox.axis[5]/2+32767/2)/100 <<"\t" <<(xbox.axis[2]/2+32767/2)/100 <<endl;
 
 			if(xbox.button[0])
 			{
@@ -160,34 +164,34 @@ int main()
 				if(xbox.axis[5]/240 > -125)
 				{
 					xbox.axis[5] = xbox.axis[5]/2+32767/2;
-					state=state+xbox.axis[5]/3000.0;
+					state=state+xbox.axis[5]/10;
 					if(state>MAX)
 						state=MAX;
 				}
 				else if(xbox.axis[2]/240 > -125)
 				{
 					xbox.axis[2] = xbox.axis[2]/2+32767/2;
-					state=state-xbox.axis[2]/3000.0;
+					state=state-xbox.axis[2]/10;
 					if(state<MIN)
 						state=MIN;
 				}
 			}
 
-			cout << state/10000 << "\t";
+			BBBsock.buffer[0]=buttons;
+			BBBsock.buffer[1]=(unsigned char)(state/10000);
+			BBBsock.buffer[2]=(unsigned char)R;
+			BBBsock.buffer[3]=(unsigned char)L;
 
-			/*PWMsock.buffer[0]=(char)servo;
-			PWMsock.buffer[1]=(char)set;
-			PWMsock.buffer[2]=(char)reset;
-			*/
-
-			BBBsock.buffer[0]= 'a';
-			BBBsock.buffer[1]='e';
+			usleep(5000);
+			count++;
+			if(count == 1)
+			{
 			BBBsock.write_udp();
-			cout<<"write"<<BBBsock.server<<endl;
+			count=0;
+			}
+			cout<<(int)((unsigned char)BBBsock.buffer[1])<<endl;
 
-			BBBrecv.read_udp();
-			cout<<endl<<endl;
-			cout<<"waiting\t"<<(char)BBBrecv.buffer[0]<<(char)BBBrecv.buffer[1]<<endl;
+			//cout<<(int)((unsigned char)BBBrecv.buffer[0])<< "\t"<<(int)((unsigned char)BBBrecv.buffer[1])<<"\t"<<(int)((unsigned char)BBBrecv.buffer[2])<<"\t"<<(int)((unsigned char)BBBrecv.buffer[3])<<endl;
 
 
 		//if(xbox.button[2])cout<<system("shutdown -h now");
