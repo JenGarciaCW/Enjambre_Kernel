@@ -25,13 +25,13 @@ public:
     char* buffer;	//Data send/receive buffer
     int  bsize;		//Data buffer size
     int recvlen;	//Number of received data bytes
-	const char * host;
-	const char * inaddr;
+	const char * host; // dirección del cliente
+	const char * inaddr; // dirección del servidor
 
-	void init_tcp_client_socket();
-	void init_tcp_server_socket();
-	void init_udp_receiver_socket();
-	void init_udp_sender_socket();
+	void init_tcp_client_socket();	// método de creación de cliente tcp
+	void init_tcp_server_socket();	// método de creación de servidor tcp
+	void init_udp_receiver_socket(); // método de creación de cliente udp
+	void init_udp_sender_socket(); // método de creación de servidor udp
 	void write_tcp();
 	void read_tcp();
 	void write_udp();

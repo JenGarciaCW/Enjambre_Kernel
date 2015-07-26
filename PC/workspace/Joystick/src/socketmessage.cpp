@@ -20,12 +20,12 @@
 namespace socket_msg {
 
 socket_message::socket_message(int portno,const char * host,const char * srv,int bufsize) {
-	this->portno=portno;	//N��mero de puerto
+	this->portno=portno;	//Número de puerto
 	this->host=host;		//IP del servidor
-	this->server = gethostbyname(this->host);	// Obtiene nombre y direcci��n del servidor
-    this->buffer = new char[bufsize];
+	this->server = gethostbyname(this->host);	// Obtiene nombre y dirección del servidor
+    this->buffer = new char[bufsize];	//Inicializa buffer
     this->bsize=bufsize;
-    this->inaddr=srv;
+    this->inaddr=srv;	//asigna dirección de cliente
 }
 
 socket_message::~socket_message() {
@@ -34,30 +34,30 @@ socket_message::~socket_message() {
 
 void socket_message::init_tcp_server_socket()
 {
-    socklen_t clilen; 								//Tama��o del cliente
-    struct sockaddr_in serv_addr, cli_addr; 		//Estructura de direcci��n simplificada
+    socklen_t clilen; 								//Tamañoo del cliente
+    struct sockaddr_in serv_addr, cli_addr; 		//Estructura de dirección simplificada
 
     this->sockfd = socket(AF_INET, SOCK_STREAM, 0);	//Crea socket TCP/IP del tipo Stream, protocolo adecuado "0"
 
-    if (this->sockfd < 0)								//Verificaci��n de creaci��n de socket
+    if (this->sockfd < 0)								//Verificación de creación de socket
        error("ERROR opening socket");
 
-    bzero((char *) &(serv_addr), sizeof(serv_addr));	//Limpia estructura de direcci��n del servidor
+    bzero((char *) &(serv_addr), sizeof(serv_addr));	//Limpia estructura de dirección del servidor
 
-    serv_addr.sin_family = AF_INET;						//Comunicaci��n mediante TCP/IP
-    serv_addr.sin_addr.s_addr = INADDR_ANY;				//Direcci��n IP de la m��quina
-    serv_addr.sin_port = htons(this->portno);			//Puerto de conexi��n - host to network short
-    //serv_addr.sin_zero N��meros complemento
+    serv_addr.sin_family = AF_INET;						//Comunicación mediante TCP/IP
+    serv_addr.sin_addr.s_addr = inet_addr(this->inaddr);		//Dirección IP de la máquina
+    serv_addr.sin_port = htons(this->portno);			//Puerto de conexión - host to network short
+    //serv_addr.sin_zero Números complemento
 
-    if (bind(this->sockfd, (struct sockaddr *) &(serv_addr),sizeof(serv_addr)) < 0)	 //asigna direcci��n y puerto al identificador de socket
+    if (bind(this->sockfd, (struct sockaddr *) &(serv_addr),sizeof(serv_addr)) < 0)	 //asigna dirección y puerto al identificador de socket
     	error("ERROR on binding");													//regresa -1 si no es posible
 
-    listen(this->sockfd,1);		// espera hasta establecer una conecci��n (5 conexiones en lista de espera)
+    listen(this->sockfd,1);		// espera hasta establecer una conección (5 conexiones en lista de espera)
 
     clilen = sizeof(cli_addr); 	//longitud de cliente
-    this->sockfd = accept(this->sockfd,(struct sockaddr *) &(cli_addr),&clilen); //acepta conexi��n y crea identificador para la comunicaci��n
+    this->sockfd = accept(this->sockfd,(struct sockaddr *) &(cli_addr),&clilen); //acepta conexión y crea identificador para la comunicación
 
-    if (this->sockfd < 0)														//verifica creaci��n de socket de comunicaci��n establecida
+    if (this->sockfd < 0)														//verifica creación de socket de comunicación establecida
          error("ERROR on accept");
 
 }
@@ -79,7 +79,7 @@ void socket_message::init_tcp_client_socket()
 
   	    bzero((char *) &(this->serv_addr), sizeof(this->serv_addr));
 	    this->serv_addr.sin_family = AF_INET;
-		bcopy((char *)this->server->h_addr,(char *)&(this->serv_addr.sin_addr.s_addr),this->server->h_length); // Asigna direcci��n de servidor
+		bcopy((char *)this->server->h_addr,(char *)&(this->serv_addr.sin_addr.s_addr),this->server->h_length); // Asigna dirección de servidor
 	    this->serv_addr.sin_port = htons(this->portno);
 
 	    // Try to connect to the server socket
@@ -90,22 +90,22 @@ void socket_message::init_tcp_client_socket()
 void socket_message::init_udp_receiver_socket()
 {
 
-	    struct sockaddr_in serv_addr, cli_addr; 		//Estructura de direcci��n simplificada
-		socklen_t clilen=sizeof(cli_addr); 								//Tama��o del cliente
+	    struct sockaddr_in serv_addr, cli_addr; 		//Estructura de dirección simplificada
+		socklen_t clilen=sizeof(cli_addr); 								//Tamaño del cliente
 	    //this->sockfd = socket(AF_INET, SOCK_STREAM, 0);	//Crea socket TCP/IP del tipo Stream, protocolo adecuado "0"
 	    this->sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 
-	    if (this->sockfd < 0)							//Verificaci��n de creaci��n de socket
+	    if (this->sockfd < 0)							//Verificación de creación de socket
 	       error("ERROR opening socket");
 
-	    bzero((char *) &(serv_addr), sizeof(serv_addr));	//Limpia estructura de direcci��n del servidor
+	    bzero((char *) &(serv_addr), sizeof(serv_addr));	//Limpia estructura de dirección del servidor
 
-	    serv_addr.sin_family = AF_INET;						//Comunicaci��n mediante TCP/IP
-	    serv_addr.sin_addr.s_addr = inet_addr(this->inaddr);				//Direcci��n IP de la m��quina
-	    serv_addr.sin_port = htons(this->portno);			//Puerto de conexi��n - host to network short
-	    //serv_addr.sin_zero N��meros complemento
+	    serv_addr.sin_family = AF_INET;						//Comunicación mediante TCP/IP
+	    serv_addr.sin_addr.s_addr = inet_addr(this->inaddr);				//Dirección IP de la máquina
+	    serv_addr.sin_port = htons(this->portno);			//Puerto de conexión - host to network short
+	    //serv_addr.sin_zero N������meros complemento
 
-	    if (bind(this->sockfd, (struct sockaddr *) &(serv_addr),sizeof(serv_addr)) < 0)	 //asigna direcci��n y puerto al identificador de socket
+	    if (bind(this->sockfd, (struct sockaddr *) &(serv_addr),sizeof(serv_addr)) < 0)	 //asigna dirección y puerto al identificador de socket
 	    	error("ERROR on binding");	//regresa -1 si no es posible
 
 }
@@ -113,10 +113,6 @@ void socket_message::init_udp_receiver_socket()
 void socket_message::init_udp_sender_socket()
 {
 
-    //socklen_t  clilen = sizeof(cli_addr);								//Tama��o del cliente
-   // struct hostent *host;
-
-    //host=gethostbyname("127.0.0.1");
 
 
     if(!this->server)
@@ -126,14 +122,13 @@ void socket_message::init_udp_sender_socket()
 
 	//Crea socket UDP del tipo Stream, protocolo adecuado "0"
     this->sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (this->sockfd < 0)							//Verificaci��n de creaci��n de socket
+    if (this->sockfd < 0)							//Verificación de creación de socket
        error("ERROR opening socket");
-    bzero((char *) &(this->serv_addr), sizeof(this->serv_addr));	//Limpia estructura de direcci��n del servidor
-    this->serv_addr.sin_family = AF_INET;						//Comunicaci��n mediante TCP/IP
+    bzero((char *) &(this->serv_addr), sizeof(this->serv_addr));	//Limpia estructura de dirección del servidor
+    this->serv_addr.sin_family = AF_INET;						//Comunicación mediante TCP/IP
     memcpy((void *)&this->serv_addr.sin_addr, this->server->h_addr_list[0], this->server->h_length);
-    this->serv_addr.sin_port = htons(this->portno);			//Puerto de conexi��n - host to network short
-    //serv_addr.sin_zero N��meros complemento
-    //sendto(this->sockfd,this->buffer,this->bsize,0,(struct sockaddr *)&this->serv_addr, sizeof(this->serv_addr));
+    this->serv_addr.sin_port = htons(this->portno);			//Puerto de conexión - host to network short
+    //serv_addr.sin_zero Números complemento
 
 }
 
@@ -144,19 +139,19 @@ void socket_message::close_socket()
 
 void socket_message::read_tcp()
 {
-    this->recvlen = read(this->sockfd,this->buffer,this->bsize); // Lee datos entrantes a trav��s de socket newsockfd en el buffer
-    if (this->recvlen < 0) error("ERROR reading from socket"); //Regresa en n el n��mero de bytes recibidos, si falla regresa -1
+    this->recvlen = read(this->sockfd,this->buffer,this->bsize); // Lee datos entrantes a través de socket newsockfd en el buffer
+    if (this->recvlen < 0) error("ERROR reading from socket"); //Regresa en n el número de bytes recibidos, si falla regresa -1
 }
 
 void socket_message::write_tcp()
 {
-	this->recvlen = write(this->sockfd,this->buffer,this->bsize);	//Env��a los datos de buffer a trav��s de newsockfd
-    if (this->recvlen < 0) error("ERROR writing to socket"); //Regresa en n el n��mero de bytes enviados, si falla regresa -1
+	this->recvlen = write(this->sockfd,this->buffer,this->bsize);	//Envía los datos de buffer a traves de newsockfd
+    if (this->recvlen < 0) error("ERROR writing to socket"); //Regresa en n el número de bytes enviados, si falla regresa -1
 }
 
 void socket_message::write_udp()
 {
-	sendto(this->sockfd,this->buffer,this->bsize,0,(struct sockaddr *)&this->serv_addr, sizeof(this->serv_addr));
+	sendto(this->sockfd,this->buffer,this->bsize,0,(struct sockaddr *)&this->serv_addr, sizeof(this->serv_addr)); // ecribe mensaje udp
 }
 
 void socket_message::read_udp()
