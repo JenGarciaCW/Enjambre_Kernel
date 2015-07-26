@@ -19,12 +19,13 @@
 
 namespace socket_msg {
 
-socket_message::socket_message(int portno,const char * host,int bufsize) {
+socket_message::socket_message(int portno,const char * host,const char * srv,int bufsize) {
 	this->portno=portno;	//N��mero de puerto
 	this->host=host;		//IP del servidor
 	this->server = gethostbyname(this->host);	// Obtiene nombre y direcci��n del servidor
     this->buffer = new char[bufsize];
     this->bsize=bufsize;
+    this->inaddr=srv;
 }
 
 socket_message::~socket_message() {
@@ -100,7 +101,7 @@ void socket_message::init_udp_receiver_socket()
 	    bzero((char *) &(serv_addr), sizeof(serv_addr));	//Limpia estructura de direcci��n del servidor
 
 	    serv_addr.sin_family = AF_INET;						//Comunicaci��n mediante TCP/IP
-	    serv_addr.sin_addr.s_addr = inet_addr("192.168.1.130");				//Direcci��n IP de la m��quina
+	    serv_addr.sin_addr.s_addr = inet_addr(this->inaddr);				//Direcci��n IP de la m��quina
 	    serv_addr.sin_port = htons(this->portno);			//Puerto de conexi��n - host to network short
 	    //serv_addr.sin_zero N��meros complemento
 

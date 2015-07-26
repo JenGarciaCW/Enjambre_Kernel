@@ -26,6 +26,7 @@ public:
     int  bsize;		//Data buffer size
     int recvlen;	//Number of received data bytes
 	const char * host;
+	const char * inaddr;
 
 	void init_tcp_client_socket();
 	void init_tcp_server_socket();
@@ -38,7 +39,7 @@ public:
 	void clear_buffer();
 	void close_socket();
 	void error(const char *msg);
-	socket_message(int portno,const char * host,int bufsize);
+	socket_message(int portno,const char * host,const char * srv,int bufsize);
 	virtual ~socket_message();
 };
 

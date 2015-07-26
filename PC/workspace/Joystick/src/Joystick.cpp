@@ -37,8 +37,6 @@
 **/
 // ----------------------------------------------------------------------------
 
-
-
 #include <stdio.h>
 #include <bitset>
 #include <math.h>
@@ -48,11 +46,10 @@
 #include <stdlib.h>
 #include "socketmessage.h"
 #include "joystickclass.h"
-//c
 
 #define PI	3.1416
 #define MAX 2350000	// Máximo valor de giro de servomotor en nanosegundos
-#define MIN 570000	// Mínimo v130alor de giro de servomotor en nanosegundos
+#define MIN 570000	// Mínimo valor de giro de servomotor en nanosegundos
 
 using namespace std;
 using namespace joystick;
@@ -62,45 +59,47 @@ double signof(double a) { return (a == 0) ? 0 : (a<0 ? -1 : 1); }  //función qu
 
 int main()
 {
-	//Inicialización de socket transmisor UDP
-	 socket_message BBBsock(2211122,"192.168.1.149",4);
+	//Inicialización de socket transmisor UDP de envío de datos
+	 socket_message BBBsock(2211122,"192.168.1.149","192.168.1.1",4);
 	 BBBsock.init_udp_sender_socket();
-
-
-
 
 	 //Creation of an xbox joystic object
 	 joystick_class xbox;
 
 
-	int algorithm =1, dzone=6000 ; //Algorithm selection (1 o 2), valor máximo de zona muerta
+	int algorithm =1, dzone=6000 ; //Selección de algoritmo (1 o 2), valor máximo de zona muerta
 	unsigned char buttons=0;	// Variable para transmitir botones
 	float R,L,theta,rho; // variables para los algoritmos
 	float state=1460000; // estado inicial para PWM del servo
-
-int count=0;
 
 
 
 
 	while( 1 ) 	// Ciclo principal
 	{
-			xbox.readjs(); // Lee los valores del joystick
 
-			buttons = 	(xbox.button[7]<<7)|(xbox.button[6]<<6)|
-						(xbox.button[5]<<5)|(xbox.button[4]<<4)|
-						(xbox.button[3]<<3)|(xbox.button[2]<<2)|
-						(xbox.button[1]<<1)|(xbox.button[0]);
-						//cout << bitset<8>(buttons) ; // Crea byte con dato de botones del joystick
+		xbox.readjs(); // Lee los valores del joystick
 
-			if(abs(xbox.axis[0])<dzone && abs(xbox.axis[1])<dzone)
-				{
-				xbox.axis[1]=0;
-				xbox.axis[0]=0;
-				} 	// crea una zona en la que los valores leidos serán cero
+		buttons = 	(xbox.button[7]<<7)|(xbox.button[6]<<6)|
+					(xbox.button[5]<<5)|(xbox.button[4]<<4)|
+					(xbox.button[3]<<3)|(xbox.button[2]<<2)|
+					(xbox.button[1]<<1)|(xbox.button[0]);
+					//cout << bitset<8>(buttons) ; // Crea byte con dato de botones del joystick
 
-		switch(algorithm)
+		/*
+		 * Generación de velocidades nominales de motores de transmisión
+		 */
+
+		if(abs(xbox.axis[0])<dzone && abs(xbox.axis[1])<dzone)
+			{
+			xbox.axis[1]=0;
+			xbox.axis[0]=0;
+			} 	// crea una zona en la que los valores leidos serán cero (zona muerta)
+
+		switch(algorithm)	//Selección de algoritmo
 		{
+			// el valor L corresponde a el motor izquierdo
+			// el valor R corresponde a el motor derecho
 			case 1:
 				// algoritmo lineal
 				L = -(int)(signof(xbox.axis[1])*pow(xbox.axis[1],2)+signof(xbox.axis[0])*pow(xbox.axis[0],2));
@@ -110,9 +109,10 @@ int count=0;
 				L=round(L)/8000000+127;
 
 				//cout << "\t FB = " << xbox.axis[1]<< "\t RL = " << xbox.axis[0]<< "\t L = " << L << "\t R = " << R  ;
+				//impresión de valores intermedios y valor de los motores
 			break;
 
-			case 2:
+			case 2:	// algoritmo vectorial
 				rho=sqrt(pow(xbox.axis[0],2)+pow(xbox.axis[1],2));
 				theta = atan2(xbox.axis[0],-xbox.axis[1]);
 
@@ -145,24 +145,32 @@ int count=0;
 				L=round(L/260)+127;
 
 				//cout << "\t theta = " << theta << "\t rho = " << rho << "\t R = " << R << "\t L = " << L  ;
-			break;
+				//impresión de valores intermedios y valor de los motores
+				break;
 		}
 
 
 
+		// Recorte de valores máximos de los motores
 		if(R>255) R=255;
 		if(R<0) R=0;
-
 		if(L>255)L=255;
 		if(L<0) L=0;
 
-			//cout <<"\t" <<(xbox.axis[5]/2+32767/2)/100 <<"\t" <<(xbox.axis[2]/2+32767/2)/100 <<endl;
+		/*
+		 * Generación de valores para servomotor de inclinación
+		 * 		Se requiere presionar el botón A y manipular
+		 * 		los disparadores izquierdo o derecho para hacer
+		 * 		que el servomotor gire en esas direcciones.
+		 */
 
-			if(xbox.button[0])
+			if(xbox.button[0])	//Botón de seguridad (A)
 			{
 
-				if(xbox.axis[5]/240 > -125)
+				if(xbox.axis[5]/240 > -125)	// Prioridad al disparador derecho
 				{
+					//Conversión de lectura analogica a un valor en nanosegundos
+					//disparador derecho
 					xbox.axis[5] = xbox.axis[5]/2+32767/2;
 					state=state+xbox.axis[5]/10;
 					if(state>MAX)
@@ -170,6 +178,8 @@ int count=0;
 				}
 				else if(xbox.axis[2]/240 > -125)
 				{
+					//Conversión de lectura analogica a un valor en centésimas de segundos
+					//disparador izquierdo
 					xbox.axis[2] = xbox.axis[2]/2+32767/2;
 					state=state-xbox.axis[2]/10;
 					if(state<MIN)
@@ -177,27 +187,21 @@ int count=0;
 				}
 			}
 
-			BBBsock.buffer[0]=buttons;
-			BBBsock.buffer[1]=(unsigned char)(state/10000);
-			BBBsock.buffer[2]=(unsigned char)R;
-			BBBsock.buffer[3]=(unsigned char)L;
+			//Asignación de valores de un byte a cada celda del arreglo buffer
+			BBBsock.buffer[0]=buttons;	//Byte de valor de botones |Start|Back|RB|LB|Y|X|B|A|
+			BBBsock.buffer[1]=(unsigned char)(state/10000); // Byte de valor de servomotor en décimas de microsegundos
+			BBBsock.buffer[2]=(unsigned char)R; // Byte con valor de motor derecho (Saberthoot)
+			BBBsock.buffer[3]=(unsigned char)L; // Byte con valor de motor izquierdo (Saberthoot)
 
-			usleep(5000);
-			count++;
-			if(count == 1)
-			{
-			BBBsock.write_udp();
-			count=0;
-			}
-			cout<<(int)((unsigned char)BBBsock.buffer[1])<<endl;
-
-			//cout<<(int)((unsigned char)BBBrecv.buffer[0])<< "\t"<<(int)((unsigned char)BBBrecv.buffer[1])<<"\t"<<(int)((unsigned char)BBBrecv.buffer[2])<<"\t"<<(int)((unsigned char)BBBrecv.buffer[3])<<endl;
+			usleep(1000);	// delay para no sobrecargar comunicación UDP
+			BBBsock.write_udp(); //Envío de buffer de valores a través del socket
 
 
 		//if(xbox.button[2])cout<<system("shutdown -h now");
+
 		fflush(stdout);
 	}
 
-	xbox.closejs();
+	xbox.closejs();	//Cierra archivo de lectura de joystick
 	return 0;
 }
