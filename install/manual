@@ -1,0 +1,3 @@
+Para colorear la terminal
+
+Remover comentarios de el archivo /root/.bashrc y hacer $source .bashrc

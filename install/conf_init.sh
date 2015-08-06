@@ -1,7 +1,7 @@
 #!/bin/bash
 
 chmod +x /usr/bin/init_pins.sh
-
+ln -s
 cp init_pins.service /lib/systemd/
 ln -s /lib/systemd/init_pins.service /etc/systemd/system/init_pins.service
 
