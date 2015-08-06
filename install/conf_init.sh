@@ -10,15 +10,21 @@ echo "remove comment in cape_disable=capemgr.disable_partno=BB-BONELT-HDMI,BB-BO
 echo "add EBB-ENJ-Cape /etc/default/capemgr"
 echo "remove comment at /root/.bashrc y hacer $source .bashrc to color ssh"
 
+rm /etc/network/interfaces
 cp interfaces /etc/network/interfaces
 
 cp init_pins.sh /usr/bin
+  cp INIT_GPIO.sh /usr/bin/
+  cp INIT_PWM.sh /usr/bin/
+
 
 cp init_pins.service /lib/systemd/
+cp init_pins.service /lib/systemd/system
+
 ln -s /lib/systemd/init_pins.service /etc/systemd/system/init_pins.service
 
 systemctl daemon-reload
-systemctl enable init_pins.service
 systemctl start init_pins.service
+systemctl enable init_pins.service
 
 echo " al finalizar hacer shutdown -r now"
