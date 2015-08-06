@@ -1,0 +1,11 @@
+[Unit]
+Description=Initialization BBB pwm pins and gpio
+After=syslog.target network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/init_pins.sh
+
+
+[Install]
+WantedBy=multi-user.target
