@@ -1,3 +1,3 @@
 #!/bin/bash
-INIT_GPIO.sh
-INIT_PWM.sh
+/usr/bin/INIT_GPIO.sh
+/usr/bin/INIT_PWM.sh
