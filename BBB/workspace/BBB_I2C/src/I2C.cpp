@@ -23,8 +23,8 @@ void stoptimer(); /*Función para detener conteo de tiempo*/
 int main() {
 	double time;
 
-	AS5048 one(0x042,2,3);	//Crea objeto de tipo AS5048, sensor de rotación
-	AS5048 two(0x040,2,3);
+	//AS5048 one(0x042,2,3);	//Crea objeto de tipo AS5048, sensor de rotación
+	//AS5048 two(0x040,2,3);
 	HMC5883L mag(1);	//Crea objeto de tipo HMC5883L Magnetómetro
 	ADXL345 acc(1);		//Crea objeto de tipo ADXL345 Acelerómetro
 	ITG3200 gyro(1);	//Crea objeto de tipo ITG3200 Giroscopio
