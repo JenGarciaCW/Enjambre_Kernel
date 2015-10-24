@@ -48,7 +48,8 @@ int ping(int dev)
 	char buffer[50];
 	char c[20];
 
-	sprintf(buffer,"ifconfig wlan0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'");
+	sprintf(buffer,
+		"ifconfig wlan0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'");
 	FILE *x = popen(buffer,"r");
 	fgets(c,20,x);
 	pclose(x);
