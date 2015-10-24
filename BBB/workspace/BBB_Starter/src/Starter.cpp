@@ -28,11 +28,14 @@ int main(){
 	cout <<"end";*/
 
 
-	threadforks G(3);
-	G.cmd[0]= "/root/ENJ/code/BBB_Joystick";
-	G.cmd[1]= "/root/ENJ/code/BBB_PWM";
-	G.cmd[2]= "/root/ENJ/code/BBB_UART";
+	threadforks G(5);
+	G.cmd[0]= "/root/code/BBB_Joystick";
+	G.cmd[1]= "/root/code/BBB_PWM";
+	G.cmd[2]= "/root/code/BBB_UART";
+	G.cmd[3]= "/root/code/BBB_UART2";
+	G.cmd[4]= "/root/code/Video";
 	G.inittf();
+
 
 return 0;
 

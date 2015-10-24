@@ -33,9 +33,9 @@ int main() {
 	 * Creación de socket que transmitira valores para estimación
 	 * de orientación y posición a PC, inálambrico
 	 * Envía en buffer:
-	 * |6Mag|6Acc|8Gyro|4Time|
+	 * |6Mag|6Acc|8Gyro|8Time|
 	 */
-	socket_message IMU_BBB(23221,"192.168.100.2",24);
+	socket_message IMU_BBB(25433,"192.168.0.2",28);
 	IMU_BBB.init_tcp_server_socket();
 
 	/*
@@ -44,8 +44,8 @@ int main() {
 	 * Envía en buffer
 	 * |2Enc1|2Enc2|4Time|
 	 */
-	socket_message CTL_ENCO("/root/messENC",2*sizeof(int)+sizeof(float));
-	CTL_ENCO.init_unix_server_socket();
+	//socket_message CTL_ENCO("/root/messENC",2*sizeof(int)+sizeof(float));
+	//CTL_ENCO.init_unix_server_socket();
 
 	starttimer();
 
@@ -59,22 +59,20 @@ int main() {
 
 		/*Lee datos del acelerómetro y los copia al buffer*/
 		acc.readacc();
-		memcpy((&(*IMU_BBB.buffer)+6),acc.buffer,acc.buffsize);
+		memcpy(&*(IMU_BBB.buffer+6),acc.buffer,acc.buffsize);
 
 		/*Lee datos del giroscopio y los copia al buffer*/
 		gyro.readgyro();
-		memcpy((&(*IMU_BBB.buffer)+6+6),gyro.buffer,gyro.buffsize);
+		memcpy(&*(IMU_BBB.buffer+6+6),gyro.buffer,gyro.buffsize);
 
 
 		/*Lee datos del cronómetro y los copia al buffer*/
 		stoptimer();
-		time = endt - startt;		// Time calculation (in seconds)
+		time = (endt - startt);		// Time calculation (in seconds)
 		starttimer();
-		memcpy((&(*IMU_BBB.buffer)+8+6+6),&time,0);
+		memcpy(&*(IMU_BBB.buffer+8+6+6),&time,sizeof(double));
 
 		IMU_BBB.write_tcp(); //Envía datos a PC
-
-		cout<< time*1000000<< endl; //imprime tiempo transcurrido
 
 	}
 
@@ -83,6 +81,7 @@ int main() {
 
 void starttimer()
 {
+
 	/* Inicizlización de medición de tiempo to */
 	gettimeofday( &tp, NULL ); //Almacena dato de tiempo en tp
 	sec = static_cast<double>( tp.tv_sec ); //obtiene tiempo en segundos

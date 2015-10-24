@@ -32,6 +32,11 @@ int main () {
   {
   JoySock.read_udp();
 
+  if(JoyPWM.buffer[0]==64)
+  {
+		system("echo 0 > /sys/class/gpio/gpio69/value" );
+		system("echo 0 > /sys/class/gpio/gpio60/value" );
+  }
   	cout<<(int)JoySock.buffer[0]<<endl;
   JoyPWM.buffer[0]=JoySock.buffer[0];
   JoyPWM.buffer[1]=JoySock.buffer[1];
