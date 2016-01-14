@@ -53,7 +53,7 @@ int ping(int dev)
 	cout<<strcmp(c,"192.168.100.4\n")<<endl;
 
 	cout<<"current ip: "<<c<< endl;
-
+	cout<<"\t";
 	stringstream ss;
 	ss<<"192.168.0.";
 	ss<< dev;
