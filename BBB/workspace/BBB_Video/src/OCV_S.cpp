@@ -53,7 +53,7 @@ int main(){
 
 /*Video Capture Configuration*/
 
-	VideoCapture vcap(-1);			//Crea objeto para lectura de c��mara disponible
+	VideoCapture vcap(-1);			//Crea objeto para lectura de camara disponible
       if(!vcap.isOpened())
       {
     	  cout << "Not cameras found" << endl;
@@ -71,8 +71,8 @@ int main(){
       /*Connection configuration*/
             int imgsize=frame.step*frame.rows;						//
             int envios=120;
-            while(imgsize%envios) envios--; //reduce n��mero de env��os hasta que sea divisible el tama��o de imagen sin residuo
-            int sizeBuff=imgsize/envios; //define el tama��o del buffer
+            while(imgsize%envios) envios--; //reduce numero de envios hasta que sea divisible el tamano de imagen sin residuo
+            int sizeBuff=imgsize/envios; //define el tamano del buffer
             cout<<imgsize<<" "<<envios<<" "<<sizeBuff<<endl;
 
 

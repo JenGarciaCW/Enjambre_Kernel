@@ -30,9 +30,10 @@ void Thermal_Display::convert(char *indata)
 
 	string irdata;
 	int ircount=0;
+	double tdata_correct[65];
 
-	if(indata[ircount]=='B')
-			for(int count = 0 ; count < 65 ; count++)
+	if(indata[ircount]=='$')
+			for(int count = 0 ; count < 64 ; count++)
 			{
 				ircount++;
 
@@ -57,9 +58,24 @@ void Thermal_Display::convert(char *indata)
 				}
 
 				irdata.clear();
-				cout<<this->tdata[count]<<endl;
+				cout<<(int)this->tdata[count] << "\t";
+				if(!((count+1)%4))
+				cout<<endl;
 			}
-		this->tamb = this->tdata[64];
+		this->tamb = this->tmin;//this->tdata[64];
+		cout<<endl;
+
+		int index=0;
+		for(int i_corr=15 ; i_corr>=0 ;i_corr--)
+		{
+			for(int counter=0; counter<4 ; counter++)
+			{
+				tdata_correct[i_corr+counter*(16)]=this->tdata[index];
+				index++;
+			}
+		}
+		 copy(begin(tdata_correct),end(tdata_correct),begin(this->tdata));
+		//this->tdata=tdata_correct;
 
 }
 

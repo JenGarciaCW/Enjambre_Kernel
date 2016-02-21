@@ -11,17 +11,11 @@
 using namespace std;
 using namespace socket_msg;
 
-int addr=128; //Dirección de control de puente H
-int fnc = 0;  //Función de Puente H 0,2 = M*Adelante 1,3= M*Reversa donde * es el motor 1 o 2
-int val = 0; // Valor entre 0 y 127 de velocidad deseada
-unsigned char transmit[4] = {addr,fnc,val,(addr+fnc+val)&127}; // Inicialización de valores a enviar
 int fduart,count;
 
 char receive[50];
 
 
-void sendSaberthoot();
-//void *thermograph(void * val);
 
 int main()
 {
@@ -53,8 +47,11 @@ int main()
 	system("echo 1 > /sys/class/gpio/gpio69/value" );
 	system("echo 1 > /sys/class/gpio/gpio60/value" );
 
-	//socket_message Thermo(302000,"192.168.0.2",500); //Creación de socket UDP para envío de datos del termógrafo
-	//Thermo.init_udp_sender_socket();
+	socket_message Thermo(302000,"192.168.0.1",500); //Creación de socket UDP para envío de datos del termógrafo
+	Thermo.init_udp_sender_socket();
+
+
+
 
 	int bytes;
 
@@ -67,12 +64,12 @@ int main()
 		// BYTES MIGHT BE RECEIVED BY HARDWARE/OS HERE!
 
 		if ((count = read(fduart, (void*)receive, 500))>0){
-		//cout<<"The following was read in ["<< count <<"]:"<<receive<<endl;
-		//Thermo.buffer=receive;
-		//Thermo.write_udp();
+		cout<<"The following was read in ["<< count <<"]:"<<receive<<endl;
+		Thermo.buffer=receive;
+		Thermo.write_udp();
 		memset(receive,0,sizeof(receive));  //Limpia buffer de lectura serial
 		tcflush(fduart,TCIFLUSH);
-		usleep(500000);
+		usleep(100000);
 		}
 	}
 	close(fduart);

@@ -15,18 +15,20 @@ using namespace thermal;
 int main(){
 
 
-	char * datos = (char*)"B37.75,36.92,37.50,35.86,38.89,38.97,39.87,35.26,35.47,37.52,37.06,37.12,36.88,37.29,37.75,36.34,37.08,38.63,37.99,36.52,36.55,38.37,36.48,36.19,37.02,37.87,37.47,36.39,36.66,38.10,37.64,36.64,35.88,37.25,35.78,36.08,36.21,37.07,37.25,36.96,36.46,36.85,36.24,36.19,37.18,38.83,37.57,38.30,36.47,35.91,36.39,36.38,35.92,36.01,35.47,36.52,37.84,37.97,37.38,37.77,36.48,36.46,38.79,37.88,39.28,*";
+	char * datos = (char*)"$15.16,16.35,16.06,16.13,15.59,16.26,16.84,16.76,16.95,18.08,17.74,16.57,17.36,16.71,17.97,17.35,17.31,17.43,17.46,17.34,17.45,18.29,17.48,16.84,16.39,18.07,18.82,18.42,17.22,18.10,17.20,17.35,18.10,17.42,16.44,17.68,15.73,16.64,17.07,18.07,18.32,19.72,18.71,17.97,16.24,19.27,18.61,18.58,18.07,15.65,17.68,16.75,17.95,16.71,17.77,16.73,18.09,18.22,16.75,16.75,18.91,18.27,16.38,16.86,*";
 
 
 	Thermal_Display termografo;
 	termografo.gensweep();
-	termografo.convert(datos);
+
 
 
 
 	Mat  img = Mat(Size(320,240), CV_8UC3, Scalar(255, 0, 0));
   	namedWindow( "Display window");// Create a window for display.
 	imshow( "Display window", img );
+	VideoWriter ouputVideo;
+	ouputVideo.open("vid01.avi",CV_FOURCC('M','P','E','G'),10,Size(320,240),true);
 	waitKey();
 
 
@@ -42,14 +44,26 @@ int main(){
   	socket_message PC_Sock(23222,"192.168.0.1",sizeBuff);
   	PC_Sock.init_udp_receiver_socket();
 
+	socket_message Thermo(302000,"192.168.0.1",500); //Creación de socket UDP para envío de datos del termógrafo
+	Thermo.init_udp_receiver_socket();
 
-  	int size=8;
+
+  	int size=14;
   	int h=16*size;
   	int v=4*size;
-  	int h0=0;
-  	int v0=0;
+  	int h0=95;
+  	int v0=100;
+	uchar k=0;
+   	int j=0;
 
 
+
+   	while(1)
+   	{
+   	Thermo.read_udp();
+    datos=Thermo.buffer;
+   	//cout<<datos<<endl;
+  	termografo.convert(datos);
   	int Temp[h][v];
   	float TempV[h][4];
   	Mat roi = img(Rect(h0,v0,h,v));
@@ -57,23 +71,23 @@ int main(){
 
   	for(int reng=0; reng<4 ; reng++)
   	{
-  	for(int x=0; x<h/32; x++)
-  	{
-  		TempV[x][reng]=termografo.tempcalc(termografo.tamb, termografo.tdata[0+reng*16],0,h/32,x);
-  	}
+		for(int x=0; x<h/32; x++)
+		{
+			TempV[x][reng]=termografo.tempcalc(termografo.tamb, termografo.tdata[0+reng*16],0,h/32,x);
+		}
 
-  	for(int n=1; n<16; n++)
-  	{
-  		for(int x=h/32+h/16*(n-1);x<h/32+h/16*(n);x++)
-  		{
-  		TempV[x][reng]=termografo.tempcalc(termografo.tdata[n-1+reng*16], termografo.tdata[n+reng*16],h/32+h/16*(n-1),h/32+h/16*(n),x);
-  		}
-  	}
+		for(int n=1; n<16; n++)
+		{
+			for(int x=h/32+h/16*(n-1);x<h/32+h/16*(n);x++)
+			{
+			TempV[x][reng]=termografo.tempcalc(termografo.tdata[n-1+reng*16], termografo.tdata[n+reng*16],h/32+h/16*(n-1),h/32+h/16*(n),x);
+			}
+		}
 
-  	for(int x=h-h/32; x<h; x++)
-  	{
-  		TempV[x][reng]=termografo.tempcalc(termografo.tdata[15+reng*16],termografo.tamb,h-h/32,h,x);
-  	}
+		for(int x=h-h/32; x<h; x++)
+		{
+			TempV[x][reng]=termografo.tempcalc(termografo.tdata[15+reng*16],termografo.tamb,h-h/32,h,x);
+		}
   	}
 
 
@@ -115,13 +129,10 @@ int main(){
 
 
 
-   	uchar k=0;
-   	int j=0;
 
 
 
-   	while(1)
-   	{
+
   		while(j<envios-1)
    		{
    	   	PC_Sock.read_udp();
@@ -131,9 +142,12 @@ int main(){
    		memcpy(&(*(img.data+j*(sizeBuff))),&(*(PC_Sock.buffer))+1,sizeBuff);
    		}
 
+  		flip(img,img,0);
+  		flip(img,img,1);
 
-   		addWeighted(color,0.9,roi,1,0.0,roi);
+   		//addWeighted(color,0.9,roi,1,0.0,roi);
 		imshow( "Display window", img );
+		ouputVideo.write(img);
 		j=0;
 		if(waitKey(10 )==29) break;
    	}

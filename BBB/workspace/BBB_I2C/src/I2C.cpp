@@ -74,6 +74,8 @@ int main() {
 
 		IMU_BBB.write_tcp(); //Envía datos a PC
 
+		usleep(5000);
+
 	}
 
 	return 0;

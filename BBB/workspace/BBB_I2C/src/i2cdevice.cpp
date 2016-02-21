@@ -105,13 +105,17 @@ HMC5883L::HMC5883L(char bus) : i2cdevice(0x01E,bus,2){
 	this->buffer[0] = 0x00;
 	this->buffer[1] = 0x70;
 	this->writebuff();
-
+	usleep(10000);
 	this->buffer[0] = 0x01;
 	this->buffer[1] = 0xA0;
 	this->writebuff();
-
+	usleep(10000);
 	this->buffer[0] = 0x02;
 	this->buffer[1] = 0x00;
+	this->writebuff();
+	usleep(10000);
+	this->buffer[0] = 0x00;
+	this->buffer[1] = 0x18;
 	this->writebuff();
 	usleep(10000);
 
@@ -135,11 +139,15 @@ ADXL345::ADXL345(char bus) : i2cdevice(0x053,bus,2){
 	this->buffer[0]=0x2D;
 	this->buffer[1]=0x08;
 	this->writebuff();
-
+	usleep(10000);
 	this->buffer[0]=0x31;
 	this->buffer[1]=0x08;
 	this->writebuff();
-
+	usleep(10000);
+	this->buffer[0]=0x2C;
+	this->buffer[1]=0x09;
+	this->writebuff();
+	usleep(10000);
 	this->buffsize=6;
 	this->buffer = new unsigned char[6];
 }
@@ -163,10 +171,14 @@ ITG3200::ITG3200(char bus) : i2cdevice(0x68,bus,2){
 	this->buffer[1]=0x1E;
 	this->writebuff();
 	usleep(10000);
+	this->buffer[0]=0x15;
+	this->buffer[1]=0x0A;
+	this->writebuff();
+	usleep(10000);
 	this->buffer[0]=0x3E;
 	this->buffer[1]=0x00;
 	this->writebuff();
-
+	usleep(10000);
 	this->buffer = new unsigned char [8];
 	this->buffsize=8;
 }

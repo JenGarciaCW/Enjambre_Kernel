@@ -1,36 +1,27 @@
+
 // ----------------------------------------------------------------------------
 /**
    File: Joystick.cpp
-
    System:	Robot de enjambre para exploración en en estructuras colapsadas
    Component Name: Control
    Status:         Version 0.1
    Language: C++
-
    License: GNU Public License
-
    Address:
       AV. UNIVERSIDAD Nº 3000,
       UNIVERSIDAD NACIONAL AUTÓNOMA DE MÉXICO, C.U.,
       DISTRITO FEDERAL, 04510
-
    Author: Kevin Omar Arias García
    E-Mail: kevinoag@gmail.com
-
    Description: This code beside joystickclass.cpp joystickclass.h socketmessage.cpp socketmessage.h
    are intended to send control instructions to the robot.
-
    Limitations: You must have an xbox-USB controller.
-
    Platform Dependencies: Linux/Intel
-
    Note:
    	   Algorithm 1 and 2 are based on the paper
    	   Manual Control for Driving an Intelligent Wheelchair: A Comparative Study of Joystick Mapping Methods*
    	   by Brígida Mónica Faria, Luís Miguel Ferreira, Luís Paulo Reis, Nuno Lau, Marcelo Petry, and João Couto Soares
-
    Compiler Options:
-
    Revisions:
    Date         Author       	Description
    2014.07.20   KevinArias	 	Added dynamic video transfer adjustable to user defined resolution
@@ -67,7 +58,7 @@ int main()
 	 joystick_class xbox;
 
 
-	int algorithm =2, dzone=6000 ; //Selección de algoritmo (1 o 2), valor máximo de zona muerta
+	int algorithm =1, dzone=6000 ; //Selección de algoritmo (1 o 2), valor máximo de zona muerta
 	unsigned char buttons=0;	// Variable para transmitir botones
 	float R,L,theta,rho; // variables para los algoritmos
 	float state=1460000; // estado inicial para PWM del servo
@@ -190,8 +181,8 @@ int main()
 			//Asignación de valores de un byte a cada celda del arreglo buffer
 			BBBsock.buffer[0]=buttons;	//Byte de valor de botones |Start|Back|RB|LB|Y|X|B|A|
 			BBBsock.buffer[1]=(unsigned char)(state/10000); // Byte de valor de servomotor en décimas de microsegundos
-			BBBsock.buffer[2]=(unsigned char)R; // Byte con valor de motor derecho (Saberthoot)
-			BBBsock.buffer[3]=(unsigned char)L; // Byte con valor de motor izquierdo (Saberthoot)
+			BBBsock.buffer[2]=(unsigned char)-L; // Byte con valor de motor derecho (Saberthoot)
+			BBBsock.buffer[3]=(unsigned char)R; // Byte con valor de motor izquierdo (Saberthoot)
 
 			usleep(31000);	// delay para no sobrecargar comunicación UDP
 
@@ -206,3 +197,5 @@ int main()
 	xbox.closejs();	//Cierra archivo de lectura de joystick
 	return 0;
 }
+
+
