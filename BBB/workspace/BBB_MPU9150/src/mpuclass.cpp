@@ -82,7 +82,25 @@ i2cdevice::~i2cdevice() {
 
 
 
+AK8975::AK8975(char bus): i2cdevice(0x0c,bus,2){
 
+}
+void AK8975::readMag(){
+	this->buffsize=2;
+	this->buffer = new unsigned char [2];
+
+	this->buffer[0] = 0x0a ;	//wake up sensor
+	this->buffer[1] = 0x01 ;
+	this->writebuff();
+	usleep(10000);
+
+	this->buffsize=6;
+	this->buffer = new unsigned char [6];
+	this->readreg(0x03);
+
+}
+AK8975::~AK8975(){
+	}
 
 AS5048::AS5048(unsigned char address, char bus, int buffersize):
 											i2cdevice(address,bus,buffersize){
@@ -99,6 +117,90 @@ AS5048::~AS5048() {
 	// TODO Auto-generated destructor stub
 }
 
+MPU9150::MPU9150(char bus) : i2cdevice(0x068,bus,2){
+	this->buffer[0] = 0x6b ;	//wake up sensor
+	this->buffer[1] = 0x00 ;
+	this->writebuff();
+	usleep(10000);
+	this->buffer[0] = 0x37 ;	//wake up sensor
+	this->buffer[1] = 0x02 ;
+	this->writebuff();
+	usleep(10000);
+	/*this->buffer[0] = 0x24 ;	//Wait for Data at Slave0
+	this->buffer[1] = 0x40 ;
+	this->writebuff();
+	usleep(10000);
+	this->buffer[0] = 0x25 ;	//Set i2c address at slave 0 at 0x0C
+	this->buffer[1] = 0x8c ;
+	this->writebuff();
+	usleep(10000);
+	this->buffer[0] = 0x26 ;	//Set where reading at slave 0 starts
+	this->buffer[1] = 0x02 ;
+	this->writebuff();
+	usleep(10000);
+	this->buffer[0] = 0x27 ;	//set offset at start reading and enable
+	this->buffer[1] = 0x88 ;
+	this->writebuff();
+	usleep(10000);
+	this->buffer[0] = 0x28 ;	//set i2c address at slv1 at 0x0C
+	this->buffer[1] = 0x0c ;
+	this->writebuff();
+	usleep(10000);
+	this->buffer[0] = 0x29 ;	//Set where reading at slave 1 starts
+	this->buffer[1] = 0x0a ;
+	this->writebuff();
+	usleep(10000);
+	this->buffer[0] = 0x2a ;	//Enable at set length to 1
+	this->buffer[1] = 0x81 ;
+	this->writebuff();
+	usleep(10000);
+	this->buffer[0] = 0x64 ;	//overvride register
+	this->buffer[1] = 0x01 ;
+	this->writebuff();
+	usleep(10000);
+	this->buffer[0] = 0x67 ;	 //set delay rate
+	this->buffer[1] = 0x03 ;
+	this->writebuff();
+	usleep(10000);
+	this->buffer[0] = 0x01 ;
+	this->buffer[1] = 0x80 ;
+	this->writebuff();
+	usleep(10000);
+	this->buffer[0] = 0x34 ;	 //set i2c slv4 delay
+	this->buffer[1] = 0x04 ;
+	this->writebuff();
+	usleep(10000);
+	this->buffer[0] = 0x64 ;	//override register
+	this->buffer[1] = 0x00 ;
+	this->writebuff();
+	usleep(10000);
+	this->buffer[0] = 0x6a ;	//clear usr setting
+	this->buffer[1] = 0x00 ;
+	this->writebuff();
+	usleep(10000);
+	this->buffer[0] = 0x64 ;	//override register
+	this->buffer[1] = 0x01 ;
+	this->writebuff();
+	usleep(10000);
+	this->buffer[0] = 0x6a ;	//enable master i2c mode
+	this->buffer[1] = 0x20 ;
+	this->writebuff();
+	usleep(10000);
+	this->buffer[0] = 0x34 ;	//disable slv4
+	this->buffer[1] = 0x13 ;
+	this->writebuff();
+	usleep(10000);*/
+
+	this->buffsize=14;
+	this->buffer = new unsigned char [14];
+}
+void MPU9150::readMPU(){
+	this->readreg(0x3b);
+
+}
+MPU9150::~MPU9150(){
+
+}
 
 
 HMC5883L::HMC5883L(char bus) : i2cdevice(0x01E,bus,2){

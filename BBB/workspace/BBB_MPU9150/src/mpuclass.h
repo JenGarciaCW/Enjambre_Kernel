@@ -73,6 +73,22 @@ public:
 	virtual ~ITG3200();
 };
 
+class MPU9150 : public i2cdevice::i2cdevice{
+public:
+	char read;
+	MPU9150(char bus);
+	void readMPU();
+	virtual ~MPU9150();
+};
+
+class AK8975 : public i2cdevice::i2cdevice{
+public:
+	char read;
+	AK8975(char bus);
+	void readMag();
+	virtual ~AK8975();
+};
+
 
 
 } /* namespace i2cdevice */
