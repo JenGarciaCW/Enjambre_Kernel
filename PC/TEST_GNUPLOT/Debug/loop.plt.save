@@ -1,0 +1,16 @@
+set multiplot
+set size 0.4,0.4
+set origin 0.1,0.1
+
+set xrange [*<10:50<*]
+plot 'test2.txt' with lines
+
+ set size 0.4,0.4
+ set origin 0.2,0.2
+ set xrange [*<10:50<*]
+ plot 'test2.txt' with lines
+replot
+reread
+ 
+ unset multiplot
+
