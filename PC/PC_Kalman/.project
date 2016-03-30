@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>PC_Sensors</name>
+	<name>PC_Kalman</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -24,21 +24,4 @@
 		<nature>org.eclipse.cdt.managedbuilder.core.managedBuildNature</nature>
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>src/PC_IMU.cpp</name>
-			<type>1</type>
-			<location>/home/kevin/git/Enjambre_Kernel/PC/workspace/PC_IMU/src/PC_IMU.cpp</location>
-		</link>
-		<link>
-			<name>src/socketmessage.cpp</name>
-			<type>1</type>
-			<location>/home/kevin/git/Enjambre_Kernel/PC/workspace/PC_IMU/src/socketmessage.cpp</location>
-		</link>
-		<link>
-			<name>src/socketmessage.h</name>
-			<type>1</type>
-			<location>/home/kevin/git/Enjambre_Kernel/PC/workspace/PC_IMU/src/socketmessage.h</location>
-		</link>
-	</linkedResources>
 </projectDescription>

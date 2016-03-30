@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "./socketmessage.h"
+#include "socketmessage.cpp"
 #include "libavcodec/avcodec.h"
 #include "libavutil/mathematics.h"
 #include "libavformat/avformat.h"
@@ -70,6 +70,7 @@ int main(int argc,char *argv[])
 		fwrite(uno.buffer+12,rsize,1,fp);
 		//fwrite(uno.buffer+12,rsize,1,f2);
 		fclose(fp);
+
 		system(" ffmpeg -nostats -loglevel 0 -f h264 -i out.raw -r 1 -vcodec copy -y out.mp4 ");	 //Llamada al sistema para eliminar link simbólico
 
 		cap.open("/home/kevin/workspace/Enjambre/PC_Bridge_Cam_R/Debug/out.mp4");

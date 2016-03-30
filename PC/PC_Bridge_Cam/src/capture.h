@@ -25,7 +25,7 @@
 #include <sys/mman.h>
 #include <sys/ioctl.h>
 #include <linux/videodev2.h>
-#include "./socketmessage.h"
+#include "socketmessage.cpp"
 
 
 

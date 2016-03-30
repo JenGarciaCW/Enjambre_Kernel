@@ -187,7 +187,7 @@ void socket_message::close_socket()
 
 void socket_message::read_tcp()
 {
-    this->recvlen = read(this->sockfd,this->buffer,this->bsize); // Lee datos entrantes a trav��s de socket newsockfd en el buffer
+    this->recvlen = recv(this->sockfd,this->buffer,this->bsize,MSG_WAITALL); // Lee datos entrantes a trav��s de socket newsockfd en el buffer
     if (this->recvlen < 0) error("ERROR reading from socket"); //Regresa en n el n��mero de bytes recibidos, si falla regresa -1
 }
 

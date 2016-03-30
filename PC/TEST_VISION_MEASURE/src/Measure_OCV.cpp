@@ -12,6 +12,7 @@ int main( int argc, char** argv )
       {
     	  std::cout << "Not cameras found" << std::endl;
     	  return -1;
+
       }
 
 

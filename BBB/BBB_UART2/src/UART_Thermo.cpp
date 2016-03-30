@@ -5,76 +5,74 @@
 #include<string.h>
 #include <fstream>
 #include <sys/ioctl.h>
-#include "socketmessage.cpp"
+#include <cmath>
 
+/* My Arduino is on /dev/ttyACM0 */
+char *portname = "/dev/ttyO4";
+char buf[256];
 
-using namespace std;
-using namespace socket_msg;
-
-int fduart,count;
-
-char receive[50];
-
-
-
-int main()
+int main(int argc, char *argv[])
 {
+ int fd;
 
-	struct termios options;
+/* Open the file descriptor in non-blocking mode */
+ fd = open(portname, O_RDWR | O_NOCTTY);
+
+/* Set up the control structure */
+ struct termios toptions;
+
+ /* Get currently set options for the tty */
+ tcgetattr(fd, &toptions);
+
+/* Set custom options */
+
+/* 9600 baud */
+ cfsetispeed(&toptions, B9600);
+ cfsetospeed(&toptions, B9600);
+ /* 8 bits, no parity, no stop bits */
+ toptions.c_cflag &= ~PARENB;
+ toptions.c_cflag &= ~CSTOPB;
+ toptions.c_cflag &= ~CSIZE;
+ toptions.c_cflag |= CS8;
+ /* no hardware flow control */
+ toptions.c_cflag &= ~CRTSCTS;
+ /* enable receiver, ignore status lines */
+ toptions.c_cflag |= CREAD | CLOCAL;
+ /* disable input/output flow control, disable restart chars */
+ toptions.c_iflag &= ~(IXON | IXOFF | IXANY);
+ /* disable canonical input, disable echo,
+ disable visually erase chars,
+ disable terminal-generated signals */
+ toptions.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
+ /* disable output processing */
+ toptions.c_oflag &= ~OPOST;
+
+/* wait for 12 characters to come in before read returns */
+/* WARNING! THIS CAUSES THE read() TO BLOCK UNTIL ALL */
+/* CHARACTERS HAVE COME IN! */
+ toptions.c_cc[VMIN] = 0xFF;
+ /* no minimum time to wait before read returns */
+ toptions.c_cc[VTIME] = 0;
+
+/* commit the options */
+ tcsetattr(fd, TCSANOW, &toptions);
+ system("echo 1 > /sys/class/gpio/gpio69/value" );
+
+/* Wait for the Arduino to reset */
+ usleep(10*1000);
+ /* Flush anything already in the serial buffer */
+ tcflush(fd, TCIFLUSH);
+ /* read up to 128 bytes from the fd */
+ int n = read(fd, buf, 500);
+
+/* print how many bytes read */
+ printf("%i bytes got read...\n", n);
+ /* print what's in the buffer */
+ printf("Buffer contains...\n%s\n", buf);
 
 
-	/*Apertura de archivo de control de comunicación serial*/
-	if((fduart=open("/dev/ttyO4",O_RDWR | O_NOCTTY | O_NDELAY))<0)
-	{
-		cout<<"UART:Falló al abrir archivo de comunicación"<< endl;
-	}
-	/*Configuración de comunicación serial:
-	*9600 baud, 8-bit, enable receiver, no modem control lines
-	*/
-	tcgetattr(fduart, &options);
-	options.c_cflag = B9600 | CS8 | CREAD | CLOCAL;
-	options.c_iflag = IGNPAR | IGNCR;
-	options.c_cc[VMIN]=0;
-	options.c_cc[VTIME]=0;
-	// ignore partity errors, CR -> newline
-	tcflush(fduart,TCIFLUSH);
-		// discard file information not transmitted
-	tcsetattr(fduart, TCSANOW, &options); // changes occur immmediately
-
-
-
-	/*Habilitación de dispositivos UART*/
-	system("echo 1 > /sys/class/gpio/gpio69/value" );
-	system("echo 1 > /sys/class/gpio/gpio60/value" );
-
-	socket_message Thermo(302000,"192.168.0.1",500); //Creación de socket UDP para envío de datos del termógrafo
-	Thermo.init_udp_sender_socket();
-
-
-
-
-
-	while(1){
-
-		/*
-		 * Lectura y reenvío de datos de termógrafo
-		 */
-
-		// BYTES MIGHT BE RECEIVED BY HARDWARE/OS HERE!
-
-		if ((count = read(fduart, (void*)receive, 500))>0){
-		cout<<"The following was read in ["<< count <<"]:"<<receive<<endl;
-		Thermo.buffer=receive;
-		Thermo.write_udp();
-		memset(receive,0,sizeof(receive));  //Limpia buffer de lectura serial
-		tcflush(fduart,TCIFLUSH);
-		usleep(100000);
-		}
-	}
-	close(fduart);
-
-
-
+	for(int i = 0 ; i<256 ; i++)
+	std::cout<<(int)buf[i]<<"\t";
 return 0;
 }
 

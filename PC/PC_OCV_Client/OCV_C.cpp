@@ -3,8 +3,8 @@
 #include "opencv2/highgui/highgui.hpp"
 
 #include <iostream>
-#include "socketmessage.h"
-#include "ThermalDisplay.h"
+#include "socketmessage.cpp"
+#include "ThermalDisplay.cpp"
 
 
 using namespace std;

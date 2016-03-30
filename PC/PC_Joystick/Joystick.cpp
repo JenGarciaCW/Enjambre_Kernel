@@ -35,8 +35,8 @@
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
-#include "socketmessage.h"
-#include "joystickclass.h"
+#include "socketmessage.cpp"
+#include "joystickclass.cpp"
 
 #define PI	3.1416
 #define MAX 2350000	// Máximo valor de giro de servomotor en nanosegundos
