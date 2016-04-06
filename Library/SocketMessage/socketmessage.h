@@ -47,6 +47,7 @@ public:
 	void read_tcp();
 	void write_udp();
 	void read_udp();
+	void read_udp(int sec, int milisec);
 	void write_unix();
 	void read_unix();
 	void clear_buffer();

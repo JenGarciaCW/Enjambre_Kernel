@@ -25,27 +25,13 @@ void Thermal_Display::gensweep()
 	}
 }
 
-void Thermal_Display::convert(char *indata)
+void Thermal_Display::convert()
 {
 
-	string irdata;
-	int ircount=0;
-	double tdata_correct[65];
+	float tdata_correct[64];
 
-	if(indata[ircount]=='$')
 			for(int count = 0 ; count < 64 ; count++)
 			{
-				ircount++;
-
-
-				while(indata[ircount]!=',')
-				{
-					irdata.append(1u,indata[ircount]);
-					ircount++;
-				}
-
-
-				this->tdata[count]=atof(irdata.c_str());
 
 				if(count==0)
 					this->tmax=this->tmin=this->tdata[count];
@@ -57,13 +43,14 @@ void Thermal_Display::convert(char *indata)
 						this->tmin=this->tdata[count];
 				}
 
-				irdata.clear();
-				cout<<(int)this->tdata[count] << "\t";
-				if(!((count+1)%4))
-				cout<<endl;
+				/*cout<<(int)this->tdata[count] << "\t";
+					if(!((count+1)%4))
+					cout<<endl;*/
+
 			}
-		this->tamb = this->tmin;//this->tdata[64];
-		cout<<endl;
+
+
+		this->tamb=this->tmin;
 
 		int index=0;
 		for(int i_corr=15 ; i_corr>=0 ;i_corr--)
@@ -74,7 +61,15 @@ void Thermal_Display::convert(char *indata)
 				index++;
 			}
 		}
-		 copy(begin(tdata_correct),end(tdata_correct),begin(this->tdata));
+/*
+		for(int reng = 0 ; reng < 4 ; reng++)
+			for(int col = 0 ; col < 16 ; col++)
+			{
+				tdata_correct[reng*16+col]=this->tdata[reng+col*4];
+			}
+
+*/
+		copy(begin(tdata_correct),end(tdata_correct),begin(this->tdata));
 		//this->tdata=tdata_correct;
 
 }

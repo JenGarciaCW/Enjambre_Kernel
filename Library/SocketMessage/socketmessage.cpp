@@ -207,6 +207,13 @@ void socket_message::read_udp()
     recv(this->sockfd,this->buffer,this->bsize,0);//,(struct sockaddr *) &(cli_addr),&clilen);
 }
 
+void socket_message::read_udp(int sec, int milisec)
+{
+	struct timeval timeout={2,0};
+	setsockopt(this->sockfd,SOL_SOCKET,SO_RCVTIMEO,(char*)&timeout,sizeof(struct timeval));
+    recv(this->sockfd,this->buffer,this->bsize,0);//,(struct sockaddr *) &(cli_addr),&clilen);
+}
+
 void socket_message::write_unix()
 {
 	this->recvlen=write(this->sockfd,this->buffer,sizeof(this->buffer));

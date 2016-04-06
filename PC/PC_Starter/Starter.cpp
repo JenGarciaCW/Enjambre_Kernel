@@ -1,13 +1,5 @@
 #include <iostream>
 #include <cstdlib>
-#include <pthread.h>
-#include <sys/wait.h>
-#include <unistd.h>
-#include <cstdio>
-#include <cstdlib>
-#include <string.h>
-#include <string>
-#include <sstream>
 #include "threadforks.h"
 
 using namespace threads;
@@ -18,7 +10,6 @@ using namespace std;
 int main(){
 
 	/*MODE 0 : Looking for workstation*/
-
 
 	cout <<"end";
 

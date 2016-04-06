@@ -31,12 +31,12 @@ const int LED = 13;
 #include <i2cmaster.h>
 #include "MLX90620_registers.h"
 
-int refreshRate = 16; //Set this value to your desired refresh frequency
+int refreshRate = 32; //Set this value to your desired refresh frequency
 bool state = 0;
 
 //Global variables
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-int irData[64]; //Contains the raw IR data from the sensor
+byte readingData[132]; //Contains the raw IR data from the sensor
 byte eepromData[256]; //Contains the full EEPROM reading from the MLX (Slave 0x50)
 //These are constants calculated from the calibration data stored in EEPROM
 //See varInitialize and section 7.3 for more information
@@ -46,7 +46,7 @@ byte loopCount = 0; //Used in main loop
 
 void setup()
 {
-    Serial.begin(9600);
+    Serial.begin(57600);
     pinMode(SYS_PWR, OUTPUT);
     pinMode(LED, OUTPUT);
     pinMode(BBB_PWR, INPUT);
@@ -56,14 +56,8 @@ void setup()
     delay(1000); // Wait for BBB initialization
     digitalWrite(LED , LOW);    // Enables power of the system 
 
-    state=digitalRead(BBB_PWR); // Read BBB status signal
-      
-    while(state)   // while powering on BBB
-      state=digitalRead(BBB_PWR); //keep reading
-
-    while(!state) //waits the start signal from BBB
-    state=digitalRead(BBB_PWR);
-
+    
+    waitPulse();
     digitalWrite(LED,HIGH);   // Power on system Led
 
 
@@ -73,16 +67,11 @@ void setup()
     
     read_EEPROM_MLX90620(); //Read the entire EEPROM
     setConfiguration(refreshRate); //Configure the MLX sensor with the user's choice of refresh rate
-    //calculate_TA(); //Calculate the current Tambient
-    delay(100); // Wait for BBB initialization
 
-  for(int i = 0 ; i < 256 ; i++)
-      Serial.write(eepromData[i]);
+    //Serial.write(eepromData,255);
    
-   digitalWrite(LED,LOW);   // Power on system Led
-
-      
-  while(1);
+    digitalWrite(LED,LOW);   // Power on system Led
+   
    
 }
 
@@ -90,34 +79,40 @@ void setup()
 void loop()
 {
 
-
-  
-  state=digitalRead(BBB_PWR);
-  if(state){
+    waitPulse();
     digitalWrite(LED,HIGH); 
-    unsigned int ptat = readPTAT_MLX90620();
-    
-        //calculate_TA(); //Calculate the new Tambient
-        if(checkConfig_MLX90620()) //Every 16 readings check that the POR flag is not set
-        {
-          Serial.println("POR Detected!");
-          setConfiguration(refreshRate); //Re-write the configuration bytes to the MLX
-        }
 
+    if(checkConfig_MLX90620()) //Every 16 readings check that the POR flag is not set
+        setConfiguration(refreshRate); //Re-write the configuration bytes to the MLX
+
+    readPTAT_MLX90620();      
     readIR_MLX90620(); //Get the 64 bytes of raw pixel data into the irData array
-    //calculate_TO(); //Run all the large calculations to get the temperature data for each pixel
+    readCPIX_MLX90620(); //Go get the raw data of the compensation pixel
+    Serial.write(readingData,132);
+    
+    
+    digitalWrite(LED,LOW); 
+
+    
+    //calculate_TA(); //Calculate the new Tambient
+   //calculate_TO(); //Run all the large calculations to get the temperature data for each pixel
     //prettyPrintTemperatures(); //Print the array in a 4 x 16 pattern
     //rawPrintTemperatures(); //Print the entire array so it can more easily be read by Processing app
-  }
-  else
-  {
-    digitalWrite(LED,LOW);
-  }
 
 }
 
 
 
+void waitPulse()
+{
+  
+  
+    while(state)   // while powering on BBB
+      state=digitalRead(BBB_PWR); //keep reading
+    
+    while(!state) //waits the start signal from BBB
+      state=digitalRead(BBB_PWR); 
+}
 
 
 //Receives the refresh rate for sensor scanning
@@ -178,7 +173,6 @@ void read_EEPROM_MLX90620()
   for(int i = 0 ; i <= 255 ; i++)
     eepromData[i] = i2c_readAck();
   i2c_stop(); //We're done talking
-  Serial.write(eepromData,256);
 
   writeTrimmingValue(eepromData[OSC_TRIM_VALUE]);
 }
@@ -210,10 +204,10 @@ unsigned int readPTAT_MLX90620()
   i2c_write(0x00); //Address step is 0
   i2c_write(0x01); //Number of reads is 1
   i2c_rep_start(MLX90620_READ);
-  byte ptatLow = i2c_readAck(); //Grab the lower and higher PTAT bytes
-  byte ptatHigh = i2c_readAck();
+  readingData[0] = i2c_readAck(); //Grab the lower and higher PTAT bytes
+  readingData[1] = i2c_readAck();
   i2c_stop();
-  return( (unsigned int)(ptatHigh << 8) | ptatLow); //Combine bytes and return
+  //return( (unsigned int)(ptatHigh << 8) | ptatLow); //Combine bytes and return
 }
 
 
@@ -230,13 +224,12 @@ void readIR_MLX90620()
   i2c_write(0x01); //Address step = 1
   i2c_write(0x40); //Number of reads is 64
   i2c_rep_start(MLX90620_READ);
-  for(int i = 0 ; i < 64 ; i++)
+  for(int i = 2 ; i < 130 ; i++ )
   {
-    byte pixelDataLow = i2c_readAck();
-    byte pixelDataHigh = i2c_readAck();
-    irData[i] = (int)(pixelDataHigh << 8) | pixelDataLow;
+    readingData[i] = i2c_readAck();
   }
   i2c_stop();
+ // irData[i] = (int)(pixelDataHigh << 8) | pixelDataLow;
 }
 
 
@@ -249,10 +242,10 @@ int readCPIX_MLX90620()
   i2c_write(0x00);
   i2c_write(0x01);
   i2c_rep_start(MLX90620_READ);
-  byte cpixLow = i2c_readAck(); //Grab the two bytes
-  byte cpixHigh = i2c_readAck();
+  readingData[130] = i2c_readAck(); //Grab the two bytes
+  readingData[131] = i2c_readAck();
   i2c_stop();
-  return ( (int)(cpixHigh << 8) | cpixLow);
+  //return ( (int)(cpixHigh << 8) | cpixLow);
 }
 
 

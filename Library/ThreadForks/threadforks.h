@@ -14,6 +14,8 @@
 #include <string.h>
 #include <string>
 #include <sstream>
+#include <sys/types.h>
+#include <signal.h>
 
 #ifndef THREADFORKS_H_
 #define THREADFORKS_H_
@@ -27,13 +29,20 @@ public:
 	pthread_t *threads;
 	int rc;
 	std::string *cmd;
-	pid_t pid;
+	pid_t *pid;
 	int noft;
-    int status;
+    int *status;
     char* innerip;
     char* conectedto;
 
+    /*
+     * Hola
+     */
+	threadforks();
+	void init_tf(int num);
 	threadforks(int num);
+	void kill_threads();
+	void restart_threads();
 	void inittf();
 	virtual ~threadforks();
 };

@@ -27,9 +27,6 @@
 #include <linux/videodev2.h>
 #include <socketmessage.cpp>
 
-
-
-
 using namespace socket_msg;
 socket_message uno(8705,"192.168.0.2",80000); //Creates a socket port, server, client, buffer size
 
@@ -78,24 +75,9 @@ static void process_image(const void *p, int size)
 {
         if (out_buf)
         {
-
             memcpy ( uno.buffer+12, p,size);
             memcpy ( uno.buffer+sizeof(double), &size,sizeof(int));
-            uno.write_tcp();
-
-//            memcpy ( buffer_s_l+12, p,size);
-//            memcpy ( buffer_s_l+sizeof(double), &size,sizeof(int));
-
-        	//fwrite(p, size, 1, stdout);
         }
-        	//*size_c_l = size;
-
-        		//        	printf("%d",size);
-               //
-
-        //fflush(stderr);
-        //fprintf(stderr, ".");
-        //fflush(stdout);
 }
 
 static int read_frame(void)
@@ -624,7 +606,7 @@ long_options[] = {
         { 0, 0, 0, 0 }
 };
 
-int capture_main( )
+int main()
 {
 	//./PC_capture -F -c 30  -d /dev/video1 -o > out.raw
 	system(" v4l2-ctl --set-fmt-video=width=1920,height=1080,pixelformat=1 ");	 //Llamada al sistema para eliminar link simbólico
@@ -634,19 +616,21 @@ int capture_main( )
 		frame_count = 1;
         out_buf++;
         uno.init_tcp_server_socket();
-        open_device();
-        init_device();
+
         while(1)
         {
-
+        open_device();
+        init_device();
         start_capturing();
         mainloop();
         stop_capturing();
+        uninit_device();
+        close_device();
+        uno.write_tcp();
 
         }
 
-        uninit_device();
-        close_device();
+
         //fprintf(stderr, "\n");
         return 0;
 }

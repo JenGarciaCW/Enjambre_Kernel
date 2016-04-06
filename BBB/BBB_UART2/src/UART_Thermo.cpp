@@ -6,14 +6,31 @@
 #include <fstream>
 #include <sys/ioctl.h>
 #include <cmath>
+#include "MLX90620_registers.h"
+#include "socketmessage.cpp"
+
+
+using namespace socket_msg;
+
+
 
 /* My Arduino is on /dev/ttyACM0 */
 char *portname = "/dev/ttyO4";
-char buf[256];
+unsigned char read_v[132]={0};
+
+
 
 int main(int argc, char *argv[])
 {
+
+	 socket_message thermal(332584,"192.168.0.1",132); //Creates a socket port, server, client, buffer size
+	 thermal.init_udp_sender_socket();
+
+
+
  int fd;
+
+
 
 /* Open the file descriptor in non-blocking mode */
  fd = open(portname, O_RDWR | O_NOCTTY);
@@ -27,8 +44,8 @@ int main(int argc, char *argv[])
 /* Set custom options */
 
 /* 9600 baud */
- cfsetispeed(&toptions, B9600);
- cfsetospeed(&toptions, B9600);
+ cfsetispeed(&toptions, B57600);
+ cfsetospeed(&toptions, B57600);
  /* 8 bits, no parity, no stop bits */
  toptions.c_cflag &= ~PARENB;
  toptions.c_cflag &= ~CSTOPB;
@@ -50,30 +67,39 @@ int main(int argc, char *argv[])
 /* wait for 12 characters to come in before read returns */
 /* WARNING! THIS CAUSES THE read() TO BLOCK UNTIL ALL */
 /* CHARACTERS HAVE COME IN! */
- toptions.c_cc[VMIN] = 0xFF;
+ toptions.c_cc[VMIN] = 132;
  /* no minimum time to wait before read returns */
  toptions.c_cc[VTIME] = 0;
 
 /* commit the options */
  tcsetattr(fd, TCSANOW, &toptions);
- system("echo 1 > /sys/class/gpio/gpio69/value" );
 
 /* Wait for the Arduino to reset */
- usleep(10*1000);
- /* Flush anything already in the serial buffer */
- tcflush(fd, TCIFLUSH);
- /* read up to 128 bytes from the fd */
- int n = read(fd, buf, 500);
-
-/* print how many bytes read */
- printf("%i bytes got read...\n", n);
- /* print what's in the buffer */
- printf("Buffer contains...\n%s\n", buf);
 
 
-	for(int i = 0 ; i<256 ; i++)
-	std::cout<<(int)buf[i]<<"\t";
+
+
+
+while(1){
+	 /* Flush anything already in the serial buffer */
+
+	 tcflush(fd, TCIFLUSH);
+	 system("echo 0 > /sys/class/gpio/gpio69/value" );
+	 system("echo 1 > /sys/class/gpio/gpio69/value" );
+	 read(fd, read_v, 300);
+	 /* read up to 128 bytes from the fd */
+
+
+
+	 memcpy ( thermal.buffer, read_v,132);
+	 thermal.write_udp();
+
+}
+
+
 return 0;
 }
+
+
 
 

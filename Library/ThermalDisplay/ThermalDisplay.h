@@ -19,9 +19,9 @@ namespace thermal {
 class Thermal_Display {
 public:
 	int sweep[512][3]; 	//Matriz de colores barrido Azul-Rojo-Amarillo
-	double tdata[65],tmax,tmin,tamb;
+	float tdata[64],tmax,tmin,tamb;
 	void gensweep();
-	void convert(char *indata);
+	void convert();
 	float tempcalc(float To,float Tf, int ro, int rf,int r);
 	int colorcalc(float To,float Tf, int ro, int rf,int r);
 	Thermal_Display();

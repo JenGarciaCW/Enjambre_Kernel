@@ -27,12 +27,10 @@ int main(){
 
 	return 0;
 
-	threadforks G(5);
-	G.cmd[0]= "/root/code/BBB_Joystick";
-	G.cmd[1]= "/root/code/BBB_PWM";
-	G.cmd[2]= "/root/code/BBB_UART";
-	G.cmd[3]= "/root/code/BBB_UART2";
-	G.cmd[4]= "/root/code/Video";
+	threadforks G(3);
+	G.cmd[0]= "/root/exec_BBB/BBB_Joystick";
+	G.cmd[1]= "/root/exec_BBB/BBB_PWM";
+	G.cmd[2]= "/root/exec_BBB/BBB_UART";
 	G.inittf();
 
 
