@@ -53,6 +53,8 @@ public:
 	void clear_buffer();
 	void close_socket();
 	void error(const char *msg);
+	void generate_sm(int portno,const char * host,int bufsize);
+	socket_message();
 	socket_message(const char * file,int size);
 	socket_message(int portno,const char * host,int bufsize);
 	virtual ~socket_message();

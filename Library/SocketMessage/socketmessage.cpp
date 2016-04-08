@@ -10,6 +10,10 @@
 
 namespace socket_msg {
 
+socket_message::socket_message(){
+
+}
+
 socket_message::socket_message(int portno,const char * host,int bufsize) {
 	this->portno=portno;	//N��mero de puerto
 	this->host=host;		//IP del servidor
@@ -34,6 +38,14 @@ socket_message::socket_message(const char *file,int size){
 
 socket_message::~socket_message() {
 	// TODO Auto-generated destructor stub
+}
+
+void socket_message::generate_sm(int portno,const char * host,int bufsize){
+	this->portno=portno;	//N��mero de puerto
+	this->host=host;		//IP del servidor
+	this->server = gethostbyname(this->host);	// Obtiene nombre y direcci��n del servidor
+    this->buffer = new char[bufsize];	//Inicializa buffer
+    this->bsize=bufsize;
 }
 
 void socket_message::init_unix_server_socket()
@@ -204,12 +216,13 @@ void socket_message::write_udp()
 
 void socket_message::read_udp()
 {
+
     recv(this->sockfd,this->buffer,this->bsize,0);//,(struct sockaddr *) &(cli_addr),&clilen);
 }
 
 void socket_message::read_udp(int sec, int milisec)
 {
-	struct timeval timeout={2,0};
+	struct timeval timeout={sec,milisec};
 	setsockopt(this->sockfd,SOL_SOCKET,SO_RCVTIMEO,(char*)&timeout,sizeof(struct timeval));
     recv(this->sockfd,this->buffer,this->bsize,0);//,(struct sockaddr *) &(cli_addr),&clilen);
 }

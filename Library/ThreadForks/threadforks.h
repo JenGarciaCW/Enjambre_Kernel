@@ -32,8 +32,8 @@ public:
 	pid_t *pid;
 	int noft;
     int *status;
-    char* innerip;
-    char* conectedto;
+    char* to_conn;
+    char* from_conn;
 
     /*
      * Hola
