@@ -48,10 +48,10 @@ using namespace socket_msg;
 
 double signof(double a) { return (a == 0) ? 0 : (a<0 ? -1 : 1); }  //función que regresa el signo del valor a
 
-int main()
+int main(int argc, char *argv[])
 {
 	//Inicialización de socket transmisor UDP de envío de datos
-	 socket_message BBBsock(2211122,"192.168.0.2",4);
+	 socket_message BBBsock(2211122,argv[1],4);
 	 BBBsock.init_udp_sender_socket();
 
 	 //Creation of an xbox joystic object

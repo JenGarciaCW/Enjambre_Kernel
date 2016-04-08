@@ -15,7 +15,7 @@ using namespace std;
 
 int ping(int dev);
 
-int main(){
+int main(int argc, char *argv[]){
 	/*int val=0;
 	int nrobots=1;
 	for(int i=nrobots+1; i>0 ;i--)
@@ -28,10 +28,13 @@ int main(){
 	cout <<"end";*/
 
 
-	threadforks G(3);
+	threadforks G(4);
+	G.from_conn = argv[1] ;
+	G.to_conn = argv[2];
 	G.cmd[0]= "/root/exec_BBB/BBB_Joystick";
 	G.cmd[1]= "/root/exec_BBB/BBB_PWM";
 	G.cmd[2]= "/root/exec_BBB/BBB_UART";
+	G.cmd[3]= "/root/exec_BBB/BBB_bridge_s_2";
 	G.inittf();
 
 return 0;

@@ -49,13 +49,7 @@ int main(){
 	const char *ip = ss.str().c_str();
 	system(ip);
 
-	/* Code execution */
-	threadforks exec_BBB(1);
-	exec_BBB.cmd[0]="/root/exec_BBB/BBB_bridge_s_2";
-	exec_BBB.to_conn = "192.168.0.1";
-	ss_temp<<"192.168.0."<<to_string(curr_ip);
-	exec_BBB.from_conn = (char *)ss_temp.str().c_str();
-	exec_BBB.inittf();
+
 
 	while(1);
 return 0;

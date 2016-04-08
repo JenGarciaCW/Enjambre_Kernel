@@ -23,7 +23,7 @@ void* Func(void * a)
 	        exit(1);
 
 	    case 0: // child process
-	        execl(((threadforks *)a)->cmd[j].c_str(), NULL); // run the command
+	        execl(((threadforks *)a)->cmd[j].c_str(),((threadforks *)a)->cmd[j].c_str(),((threadforks *)a)->from_conn,((threadforks *)a)->to_conn, NULL); // run the command
 	        perror("execl"); // execl doesn't return unless there is a problem
 	        exit(1);
 
@@ -100,7 +100,7 @@ void threadforks::inittf(){
  * */
 
 	for(int j = 0 ; j < this->noft ; j++){
-		usleep(30000); //delay of 30ms
+		usleep(5000000); //delay of 30ms
 		this->i=j; //pass the value of j to the object
 		this->rc = pthread_create(&this->threads[j], NULL,Func,this);
 		if (this->rc){

@@ -25,25 +25,23 @@ int main(int argc, char *argv[]){
 	hShake_send.init_udp_sender_socket();
 	int n_robots =  atoi(argv[1]);
 	stringstream ss_temp;
-	threadforks exec_PC[n_robots];
-	int i = 0;
-	//for(int i=0 ; i<n_robots ;i++)
-	//{
+	for(int i=0 ; i<n_robots ;i++)
+	{
 		/*MODE 0 : Handshake and connection stablishment*/
 		handShake(n_robots+1-i);
 		while(!ping(n_robots+1-i));
 		usleep(4*1000*1000);
 
-		/*MODE 1 : Running programs comunicating with workstation*/
+		/*MODE 1 : Running programs comunicating with workstation
 		exec_PC[i].init_tf(1);
 
 		exec_PC[i].cmd[0]= "/home/kevin/workspace/Enjambre/PC_Bridge_Cam_R/Debug/PC_Bridge_Cam_R";
 		ss_temp<<"192.168.0."<<to_string(n_robots+1-i);
 		exec_PC[i].from_conn =(char *)ss_temp.str().c_str();
 		exec_PC[i].to_conn = "192.168.0.1";
-		exec_PC[i].inittf();
+		exec_PC[i].inittf();*/
 
-	//}
+	}
 
 	//    pthread_exit(NULL); // close current thread
 

@@ -10,7 +10,9 @@ using namespace std;
 using namespace socket_msg;
 
 
-int main () {
+int main (int argc, char *argv[]) {
+
+
 
 	/*Creación de socket entre BBB_Joystick y PWM*/
 	socket_message JoyPWM("/root/messPWM",2);

@@ -36,9 +36,9 @@ int main()
 	system("echo 1 > /sys/class/gpio/gpio69/value" );
 	system("echo 1 > /sys/class/gpio/gpio60/value" );
 
-	socket_message Thermo(30000,"192.168.0.2",500);
+	//socket_message Thermo(30000,"192.168.0.2",500);
 	//Creación de socket UDP para envío de datos del termógrafo
-	Thermo.init_udp_sender_socket();
+	//Thermo.init_udp_sender_socket();
 
 	socket_message JoyUART("/root/messUART",2);
 	//Creación de socket interno UNIX para recepción de datos del Joystick

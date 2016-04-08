@@ -11,14 +11,14 @@
 using namespace std;
 using namespace socket_msg;
 
-int main () {
+int main (int argc, char *argv[]) {
 
 	/*Declaracion de sockets*/
 
 	  unlink("/root/messPWM");	// Elimina archivo messPWM
 	  unlink("/root/messUART"); // Elimina archivo messUART
 
-	  socket_message JoySock(2211122,"192.168.0.2",4); // Crea objeto socket
+	  socket_message JoySock(2211122,argv[1],4); // Crea objeto socket
 	  JoySock.init_udp_receiver_socket(); // Genera socket udp para recibir
 
 	  socket_message JoyPWM("/root/messPWM",2); //Crea objeto socket en archivo
