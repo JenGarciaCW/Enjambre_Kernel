@@ -126,7 +126,7 @@ int main(int argc,char *argv[])
 
 	system(" ffmpeg -nostats -loglevel 0 -f h264 -i out.raw -r 1 -vcodec copy -y out.mp4 ");	 //Llamada al sistema para eliminar link simbólico
 
-	cap.open("/home/kevin/workspace/Enjambre/PC_Bridge_Cam_R/Debug/out.mp4");
+	cap.open("out.mp4");
 	cap.read(image);
 
 	imshow( "Display window", image );
@@ -245,7 +245,7 @@ int main(int argc,char *argv[])
 
 		system(" ffmpeg -nostats -loglevel 0 -f h264 -i out.raw -r 1 -vcodec copy -y out.mp4 ");	 //Llamada al sistema para eliminar link simbólico
 
-		cap.open("/home/kevin/workspace/Enjambre/PC_Bridge_Cam_R/Debug/out.mp4");
+		cap.open("out.mp4");
     	cap.read(image);
 
   		flip(image,image,0);

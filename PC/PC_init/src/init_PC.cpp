@@ -1,5 +1,7 @@
 #include <iostream>
 #include <cstdlib>
+#include <sys/time.h>
+#include <sys/types.h>
 #include "threadforks.cpp"
 #include "socketmessage.cpp"
 
@@ -19,18 +21,39 @@ socket_message hShake_send(2252,"192.168.0.2",1);
 
 
 int main(int argc, char *argv[]){
+	stringstream ss;
+	char *ip;
+
+
 	//receives the number of robots as an argument
 
 	hShake_rec.init_udp_receiver_socket();
 	hShake_send.init_udp_sender_socket();
 	int n_robots =  atoi(argv[1]);
 	stringstream ss_temp;
-	for(int i=0 ; i<n_robots ;i++)
-	{
+	double sec, usec;	//variables para cálculo de tiempo
+
+	//for(int i=0 ; i<n_robots ;i++)
+	//{
+	int i=atoi(argv[2]);
 		/*MODE 0 : Handshake and connection stablishment*/
 		handShake(n_robots+1-i);
 		while(!ping(n_robots+1-i));
-		usleep(4*1000*1000);
+		usleep(1*1000*1000);
+
+
+
+		ss.str("");
+		ss<<"192.168.0."<<to_string(n_robots+1-i);
+		ip = (char*)ss.str().c_str();
+		cout<<ip<<" "<<2254+n_robots+1-i<<endl;
+		socket_message time(2254+n_robots+1-i , ip ,2*sizeof(double) );
+		time.init_tcp_client_socket();
+		time.read_tcp();
+		memcpy(&sec,&*(time.buffer),sizeof(double));
+		memcpy(&usec,&*(time.buffer+sizeof(double)),sizeof(double));
+		cout<<endl<<sec+usec<<endl;
+	//}
 
 		/*MODE 1 : Running programs comunicating with workstation
 		exec_PC[i].init_tf(1);
@@ -40,8 +63,6 @@ int main(int argc, char *argv[]){
 		exec_PC[i].from_conn =(char *)ss_temp.str().c_str();
 		exec_PC[i].to_conn = "192.168.0.1";
 		exec_PC[i].inittf();*/
-
-	}
 
 	//    pthread_exit(NULL); // close current thread
 
@@ -69,9 +90,9 @@ int ping(int dev_s)
 	char buffer[50];
 	char c[20];
 
-	stringstream ss;
-	ss<<"192.168.0."<<to_string(dev_s);
-	const char *ip = ss.str().c_str();
+	stringstream sd;
+	sd<<"192.168.0."<<to_string(dev_s);
+	const char *ip = sd.str().c_str();
 	sprintf(buffer,"ping -c 3 %s | grep -c ms", ip);
 	FILE *p = popen(buffer,"r");
 	fgets(c,5,p);

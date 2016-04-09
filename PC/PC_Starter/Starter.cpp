@@ -7,23 +7,25 @@ using namespace std;
 
 //int ping(int dev);
 
-int main(){
+int main(int argc, char *argv[]){
+	/*int val=0;
+	int nrobots=1;
+	for(int i=nrobots+1; i>0 ;i--)
+	{
+		val=ping(i);
+		cout<<"Ping to 192.168.0."<<i<< " = "<<val<<endl;
+		if(val)break;
+	}
 
-	/*MODE 0 : Looking for workstation*/
-
-	cout <<"end";
-
-	return 0;
+	cout <<"end";*/
 
 
-	threadforks G(5);
-	G.cmd[0]= "/root/code/BBB_Joystick";
-	G.cmd[1]= "/root/code/BBB_PWM";
-	G.cmd[2]= "/root/code/BBB_UART";
-	G.cmd[3]= "/root/code/BBB_UART2";
-	G.cmd[4]= "/root/code/Video";
+	threadforks G(2);
+	G.from_conn = argv[1] ;
+	G.to_conn = argv[2];
+	G.cmd[0]= "/home/kevin/workspace/Enjambre/PC_Joystick/Debug/PC_Joystick";
+	G.cmd[1]= "/home/kevin/workspace/Enjambre/PC_Bridge_Cam_R/Debug/PC_Bridge_Cam_R";
 	G.inittf();
-
 
 return 0;
 
