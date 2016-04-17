@@ -140,8 +140,11 @@ void socket_message::init_tcp_client_socket()
 	    this->serv_addr.sin_port = htons(this->portno);
 
 	    // Try to connect to the server socket
-	    if (connect(this->sockfd,(struct sockaddr *) &(this->serv_addr),sizeof(this->serv_addr)) < 0)
+	    while(connect(this->sockfd,(struct sockaddr *) &(this->serv_addr),sizeof(this->serv_addr)) < 0)
 	        error("ERROR connecting");
+
+	    	//if (connect(this->sockfd,(struct sockaddr *) &(this->serv_addr),sizeof(this->serv_addr)) < 0)
+	        //error("ERROR connecting");
 }
 
 void socket_message::init_udp_receiver_socket()

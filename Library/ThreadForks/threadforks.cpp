@@ -110,7 +110,7 @@ void threadforks::inittf(){
 		while(!this->ready); //wait to flag ready set by Func created thread
 		this->ready=0;	//clear flag
 	}
-    pthread_exit(NULL);
+    //pthread_exit(NULL);
 }
 
 threadforks::~threadforks() {

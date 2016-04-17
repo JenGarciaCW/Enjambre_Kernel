@@ -80,6 +80,7 @@ unsigned char eepromData[256]= {0xdb,0xdb,0xda,0xdc,0xdd,0xdd,0xde,0xe1,0xdf,0xe
 
 int main(int argc,char *argv[])
 {
+	usleep(5000000);
 
 	cout<<"Communicating from " << argv[1] << " to " << argv[2] <<endl;
 
@@ -90,14 +91,18 @@ int main(int argc,char *argv[])
 	Thermal_Display termografo;
 	termografo.gensweep();
 
+	 std::cout<<"cero"<<endl;
 
 	 socket_message thermal(332584,argv[1],132); //Creates a socket port, server, client, buffer size
 	 thermal.init_tcp_client_socket();
 
-	 std::cout<<"uno";
+	 std::cout<<"uno"<<endl;
 
     socket_message uno(8705,argv[1],80000); //Creates a socket port, server, client, buffer size
 	uno.init_tcp_client_socket();
+
+	 std::cout<<"dos"<<endl;
+
 
 	varInitialization(eepromData);
 

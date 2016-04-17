@@ -24,7 +24,7 @@ void stoptimer(); /*Función para detener conteo de tiempo*/
 int main() {
 	double time;
 
-	//AS5048 one(0x042,2,3);	//Crea objeto de tipo AS5048, sensor de rotación
+	AS5048 one(0x042,2,3);	//Crea objeto de tipo AS5048, sensor de rotación
 	AS5048 two(0x040,2,3);
 	//HMC5883L mag(1);	//Crea objeto de tipo HMC5883L Magnetómetro
 	//ADXL345 acc(1);		//Crea objeto de tipo ADXL345 Acelerómetro
@@ -47,6 +47,7 @@ int main() {
 	 */
 	//socket_message CTL_ENCO("/root/messENC",2*sizeof(int)+sizeof(float));
 	//CTL_ENCO.init_unix_server_socket();
+			one.readang();
 	angle = two.readang();
 	starttimer();
 
@@ -56,20 +57,15 @@ int main() {
 
 
 
-		angle = two.readang();
-		stoptimer();
-		time = (endt - startt);		// Time calculation (in seconds)
-		starttimer();
+	two.readang();
 
-		if((angle-last_angle)>50)
-			vel--;
-		else if((last_angle-angle)>150)
-			vel++;
+		//stoptimer();
+		//time = (endt - startt);		// Time calculation (in seconds)
+		//starttimer();
 
-
-		last_angle=angle;
-		cout<<hex<<(int)two.diagnostic()<<"\t";
-		cout<<"\t"<<angle<<"\t"<<time<<"\t"<<vel<<"\t"<<endl;
+		//last_angle=angle;
+		//cout<<hex<<(int)two.diagnostic()<<"\t";
+		//cout<<"\t"<<angle<<"\t"<<time<<"\t"<<vel<<"\t"<<endl;
 		//usleep(100);
 
 	}
