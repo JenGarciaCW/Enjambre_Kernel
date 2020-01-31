@@ -1,0 +1,18 @@
+---
+- name: start node
+  systemd:
+    name: node-exporter
+    state: started
+    daemon_reload: yes
+
+- name: enable node
+  systemd:
+    name: node-exporter
+    enabled: yes
+    daemon_reload: yes
+
+- name: stop node
+  systemd:
+    name: node-exporter
+    state: stopped
+    daemon_reload: yes

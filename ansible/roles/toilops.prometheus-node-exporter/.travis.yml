@@ -1,0 +1,33 @@
+# language: python
+# python: '2.7'
+sudo: true
+
+services:
+  - docker
+
+env:
+  - distro: centos7
+    init: /usr/lib/systemd/systemd
+    run_opts: "--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro"
+
+before_install:
+  - 'docker pull geerlingguy/docker-${distro}-ansible:latest'
+# addons:
+#   apt:
+#     packages:
+#     - python-pip
+# install:
+# - pip install ansible
+# - ansible --version
+# - printf '[defaults]\nroles_path=../' >ansible.cfg
+script:
+- container_id=$(mktemp)
+- 'docker run --detach --volume="${PWD}":/etc/ansible/roles/prometheus-node-exporter:ro ${run_opts} geerlingguy/docker-${distro}-ansible:latest "${init}" > "${container_id}"'
+- >
+  docker exec --tty "$(cat ${container_id})" env TERM=xterm
+  ansible-playbook /etc/ansible/roles/prometheus-node-exporter/tests/test.yml -i /etc/ansible/roles/prometheus-node-exporter/tests/inventory -vvv
+notifications:
+  webhooks: https://galaxy.ansible.com/api/v1/notifications/
+  slack:
+    rooms:
+      secure: YRFyQGCe+lpzKIWGHH+JDcw8uRxxMcWSIBjWvks5icv4oSlt63ZX9GGWAPWkDI4MYlnyAADyRGS+DAtDWM5qZJkLZslvHqx6Yiti8ZvfhJBq3ztuHHlo5Mfk2Od339vBRWPc2IHATNwF5CJGyvJZPqj9Ws+iOmv1vL5cwdk/azCOhyy+RNh4duPplOqM36m9RR9w1Z/codnZZ+TaMj6RsAyvRfaH7StfRcDNlrxpur/MQYtfZtBT72ZyrjIbBItVIX6KsW8peEA46cC4E2RzpDZVMtGm6mtn1yiCwiQF25Vy6pY+LiL/eS7gxmsoT/LSFAoH6bxklfEi2F2xHs58l7IY+SKNhId9HsodLr6v4p79qAsCzlzSZJIdNEqjnmyBxTtowo1EhsZO56YRDTj3Fye81BtxKlgGaMfUqSY8nJzGw99SVNV0KeH8xwVVRazg8088iDHfEnOZXAIcDHkF/omPGi9obueYNdgZdC9Mq8VJID8Mh2GMij1iLAKTVdCPzZ6vlCXz623lSHjB3vYTIBcviNpVzNhBDCEe+a5HLJ5LDjQKB7rVV9GkSJjsHZCUE2ibefsGN6KdedCshC+NnjXUSRavSfxrh+KUZQauGhI2bnAkJ0m5CgchrvUDlGuHpG3SnLD3TW/n1C8troat/CbYe6WnYs4gYhgTt4TCgWQ=

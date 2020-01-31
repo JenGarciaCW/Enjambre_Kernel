@@ -1,0 +1,17 @@
+---
+- include_tasks: set-role-facts.yml
+
+- include_tasks: create-user.yml
+  when: pne_create_user == true
+
+- name: Create Required Directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ pne_user_id }}"
+    group: "{{ pne_user_gid }}"
+  with_items:
+    - "{{ pne_install_dir }}"
+
+- include_tasks: install-binary.yml
+  when: pne_install == true

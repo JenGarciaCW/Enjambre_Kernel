@@ -1,0 +1,19 @@
+---
+# Runtime User Configurations
+pne_user_id: prometheus
+pne_user_gid: prometheus
+pne_create_user: true
+
+# Install Location
+pne_install_dir: /opt/prometheus/bin
+pne_systemd_dir: /usr/lib/systemd/system
+
+# Binary Download Information
+pne_system: "{{ ansible_system | lower }}"
+pne_app_name: node_exporter
+pne_version: 0.16.0
+pne_file_extension: tar.gz
+pne_base_url: https://github.com
+pne_context_root: prometheus/node_exporter/releases/download
+pne_file_name: "{{ pne_app_name }}-{{ pne_version }}.{{ pne_system }}-{{ pne_arch_type }}.{{ pne_file_extension }}"
+pne_download_uri: "{{ pne_base_url }}/{{ pne_context_root }}/{{ pne_tag_version }}/{{ pne_file_name }}"

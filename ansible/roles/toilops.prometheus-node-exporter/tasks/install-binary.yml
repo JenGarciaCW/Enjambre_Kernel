@@ -1,0 +1,20 @@
+---
+- name: Install Node Exporter
+  unarchive:
+    src: "{{ pne_download_uri }}"
+    dest: "{{ pne_install_dir }}"
+    owner: "{{ pne_user_id }}"
+    group: "{{ pne_user_gid }}"
+    remote_src: yes
+    extra_opts: [--strip-components=1]
+    creates: "{{ pne_install_dir }}/bin/node-exporter"
+
+- name: Configure systemd
+  template:
+    src: node-exporter.service.j2
+    dest: "{{ pne_systemd_dir }}/node-exporter.service"
+    owner: root
+    group: root
+  notify:
+    - start node
+    - enable node
